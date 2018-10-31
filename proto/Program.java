@@ -9,40 +9,60 @@ public class Program extends JFrame {
 	JSplitPane navigation;
 	
 	JSplitPane splitPane;
-	MyTree tree;
+	JPanel panel;
+// 	ClassTree tree;
 	JLabel label = new JLabel("Don't");
 	DefaultMutableTreeNode top = new DefaultMutableTreeNode("Top of tree");
+	ClassTree classTree;
 	
-	public MyWindow() {
+	public Program() {
 		super();
-		tree = new MyTree(top);
-		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, label, tree);
-		add(splitPane);
-		DefaultMutableTreeNode category = null;
-		category = new DefaultMutableTreeNode("Test");
-		top.add(category);
-	}
-	
-	private initTree() {
-		DefaultMutableTreeNode root = new DefaultMutableTreeNode("root");
-		JTree tree = new JTree(root);
-	}
-	
-	// Initialise window structure
-	private init() {
+// 		tree = new MyTree(top);
+		panel = new JPanel();
+		classTree = new ClassTree(panel);
 		
-		navigation = new JSplitPane(JSplitPane.VERTICAL_SPLIT, tree, table);
+		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, panel, label);
+		add(splitPane);
 		
 	}
 	
 }
 
-class ClassTree extends JTree {
+class ClassTree extends JPanel {
 	
-	public ClassTree() {
+	DefaultMutableTreeNode root;
+	DefaultTreeModel model;
+	JTree tree;
+	
+	public ClassTree(Container container) {
 		super();
-		setRootVisible(false);
+		root = new DefaultMutableTreeNode("Root");
+		model = new DefaultTreeModel(root);
+		
+		tree = new JTree(model);
+		tree.setEditable(true);
+// 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		tree.setShowsRootHandles(true);
+		tree.setRootVisible(true);
+		JScrollPane scrollPane = new JScrollPane(tree);
+		container.add(scrollPane);
 	}
 	
-	private 
+	private void clear() {
+		root.removeAllChildren();
+		model.reload();
+	}
+	
+	public void removeCurrentNode() {
+		TreePath currentSelection = tree.getSelectionPath();
+		if (currentSelection != null) {
+			MutableTreeNode currentNode = (DefaultMutableTreeNode) (currentSelection.getLastPathComponent());
+			MutableTreeNode parent = (MutableTreeNode) (currentNode.getParent());
+// 			if (parent != null) {
+// 				treeModel.removeNodeFromParent(currentNode);
+// 				return;
+// 			}
+		}
+	}
+	
 }
