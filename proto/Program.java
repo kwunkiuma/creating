@@ -65,4 +65,7 @@ class ClassTree extends JPanel {
 		}
 	}
 	
+	public DefaultMutableTreeNode addObject(DefaultMutableTreeNode parent, Object child) {
+		return addObject(parent, child, false);
+	}
 }
