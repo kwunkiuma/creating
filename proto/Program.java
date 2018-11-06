@@ -20,16 +20,16 @@ public class Program extends JFrame {
 		methodNew,
 		methodRemove;
 	JSplitPane
-		classMethodSplit,
+		classPropertiesSplit,
 		classSplit,
 		methodPropertySplit,
 		centreSplit;
 	JScrollPane scrollPane;
 	JPanel
-		panel,
+		classPanel,
 		methodProperties = new JPanel(),
-		boxes = new JPanel(),
-		table;
+		boxes,
+		propertiesPanel;
 	JLabel label = new JLabel("Test");
 	DefaultMutableTreeNode top = new DefaultMutableTreeNode("Top of tree");
 	ClassTree classTree;
@@ -67,10 +67,10 @@ public class Program extends JFrame {
 		this.setJMenuBar(menuBar);
 		
 		// Initialise tree panel
-		panel = new JPanel();
-		panel.setLayout(new GridLayout(0, 1));
-		scrollPane = new JScrollPane();
-		classTree = new ClassTree(panel);
+		classPanel = new JPanel();
+		classPanel.setLayout(new GridLayout(0, 1));
+		classTree = new ClassTree();
+		classPanel.add(classTree);
 		
 		// Populate table with sample data
 		for (int i = 0; i < 10; i++) {
@@ -81,30 +81,41 @@ public class Program extends JFrame {
 		}
 		
 		// Initialise table
-		table = new JPanel();
-		table.setLayout(new GridLayout(0,1));
-		PropertiesTable propertiesTable = new PropertiesTable(table);
+		propertiesPanel = new JPanel();
+		propertiesPanel.setLayout(new GridLayout(0,1));
+		PropertiesTable propertiesTable = new PropertiesTable();
+		propertiesPanel.add(propertiesTable);
 		
 		// Setting up split panes
-		classMethodSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true, panel, table);
-		classSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, classMethodSplit, label);
-		methodPropertySplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true, methodProperties, boxes);
+		classPropertiesSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true, classPanel, propertiesPanel);
+		classPropertiesSplit.setResizeWeight(0.5);
+		
+		classSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, classPropertiesSplit, boxes);
+		classSplit.setResizeWeight(0);
+		
+		
+		methodPropertySplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true, methodProperties, label);
+		
+		
+		methodPropertySplit.setResizeWeight(0.5);
 		centreSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, classSplit, methodPropertySplit);
+		centreSplit.setResizeWeight(1);
 		
 		add(centreSplit);
 	}
 	
-	class ClassTree extends JPanel implements TreeSelectionListener {
+	class ClassTree extends JScrollPane implements TreeSelectionListener, MouseListener {
 		
 		DefaultMutableTreeNode root;
 		DefaultTreeModel model;
 		JTree tree;
 		
-		public ClassTree(Container container) {
+		public ClassTree() {
 			super();
+			
+			// Initialise tree properties
 			root = new DefaultMutableTreeNode("Root");
 			model = new DefaultTreeModel(root);
-			
 			tree = new JTree(model);
 			tree.setEditable(true);
 			tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
@@ -112,8 +123,8 @@ public class Program extends JFrame {
 			tree.setShowsRootHandles(true);
 			tree.setRootVisible(false);
 			tree.addTreeSelectionListener(this);
-			JScrollPane scrollPane = new JScrollPane(tree);
-			container.add(scrollPane);
+			tree.addMouseListener(this);
+			this.setViewportView(tree);
 		}
 		
 		private void clear() {
@@ -144,20 +155,74 @@ public class Program extends JFrame {
 		}
 		
 		public void valueChanged(TreeSelectionEvent e) {
-			System.out.println(e.getPath().getLastPathComponent());
 			label.setText(e.getPath().getLastPathComponent().toString());
 		}
+		public void mouseClicked(MouseEvent e) {
+			if (SwingUtilities.isRightMouseButton(e)) {
+				int row = tree.getClosestRowForLocation(e.getX(), e.getY());
+				tree.setSelectionRow(row);
+				TreePopupMenu treePopupMenu = new TreePopupMenu();
+				treePopupMenu.show(e.getComponent(), e.getX(), e.getY());
+			}
+		}
+		
+		public void mouseExited(MouseEvent e) {
+			
+		}
+		
+		public void mouseEntered(MouseEvent e) {
+			
+		}
+		
+		public void mouseReleased(MouseEvent e) {
+			
+		}
+		
+		public void mousePressed(MouseEvent e) {
+			
+		}
 	}
-
+	
+	class TreePopupMenu extends JPopupMenu implements ActionListener {
+		
+		JMenuItem
+			removeNode = new JMenuItem("Remove"),
+			clone = new JMenuItem("Clone");
+		
+		public TreePopupMenu() {
+			super();
+			
+			removeNode.addActionListener(this);
+			this.add(removeNode);
+			
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == removeNode) {
+				classTree.removeCurrentNode();
+			}
+		}
+	}
 }
 
-class PropertiesTable extends JPanel {
+class MyClass {
+	
+	TreePath path;
+	MyClass parent;
+	
+	public MyClass() {
+		
+	}
+	
+}
+
+class PropertiesTable extends JScrollPane {
 	
 // 	DefaultTableModel model;
 	JTable table;
 	String[] classNames = {"One", "Two", "Three"};
 // 	JComboBox classes;
-	public PropertiesTable(Container container) {
+	public PropertiesTable() {
 		super();
 // 		classes.setEditable(true);
 		String[] columns = {
@@ -169,8 +234,7 @@ class PropertiesTable extends JPanel {
 			{"Access modifier", "Tes"}
 		};
 		table = new JTable(data, columns);
-		JScrollPane scrollPane = new JScrollPane(table);
-		container.add(scrollPane);
+		this.setViewportView(table);
 	}
 	
 }
