@@ -75,7 +75,7 @@ public class Program extends JFrame {
 		// Populate table with sample data
 		for (int i = 0; i < 10; i++) {
 			DefaultMutableTreeNode temp = classTree.addObject(classTree.root, Integer.toString(i));
-			if (i == 5) {
+			if (i == 6) {
 				classTree.addObject(temp, "Child");
 			}
 		}
