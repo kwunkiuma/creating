@@ -5,9 +5,10 @@ import javax.swing.plaf.basic.*;
 import javax.swing.tree.*;
 import javax.swing.event.*;
 
-public class Program extends JFrame {
+public class BK extends JFrame {
 	
-	JMenuBar menuBar;
+	JMenuBar
+		menuBar;
 	JMenu
 		fileMenu,
 		classMenu,
@@ -34,7 +35,7 @@ public class Program extends JFrame {
 	DefaultMutableTreeNode top = new DefaultMutableTreeNode("Top of tree");
 	ClassTree classTree;
 	
-	public Program() {
+	public BK() {
 		super();
 		
 		// Initialise menu bar
@@ -90,6 +91,7 @@ public class Program extends JFrame {
 		classPropertiesSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true, classPanel, propertiesPanel);
 		classPropertiesSplit.setResizeWeight(0.5);
 		
+		boxes = new JPanel();
 		classSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, classPropertiesSplit, boxes);
 		classSplit.setResizeWeight(0);
 		
@@ -102,6 +104,14 @@ public class Program extends JFrame {
 		centreSplit.setResizeWeight(1);
 		
 		add(centreSplit);
+	}
+	
+	// Main method
+	public static void main(String[] args) {
+		BK window = new BK();
+		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		window.setSize(1280, 720);
+		window.setVisible(true);
 	}
 	
 	class ClassTree extends JScrollPane implements TreeSelectionListener, MouseListener {
@@ -157,9 +167,13 @@ public class Program extends JFrame {
 		public void valueChanged(TreeSelectionEvent e) {
 			label.setText(e.getPath().getLastPathComponent().toString());
 		}
+		
 		public void mouseClicked(MouseEvent e) {
 			if (SwingUtilities.isRightMouseButton(e)) {
-				int row = tree.getClosestRowForLocation(e.getX(), e.getY());
+				int row = tree.getRowForLocation(e.getX(), e.getY());
+				if (row == -1) { // Nothing clicked
+					return;
+				}
 				tree.setSelectionRow(row);
 				TreePopupMenu treePopupMenu = new TreePopupMenu();
 				treePopupMenu.show(e.getComponent(), e.getX(), e.getY());
@@ -167,19 +181,15 @@ public class Program extends JFrame {
 		}
 		
 		public void mouseExited(MouseEvent e) {
-			
 		}
 		
 		public void mouseEntered(MouseEvent e) {
-			
 		}
 		
 		public void mouseReleased(MouseEvent e) {
-			
 		}
 		
 		public void mousePressed(MouseEvent e) {
-			
 		}
 	}
 	
@@ -203,39 +213,27 @@ public class Program extends JFrame {
 			}
 		}
 	}
-}
-
-class MyClass {
 	
-	TreePath path;
-	MyClass parent;
-	
-	public MyClass() {
+	class PropertiesTable extends JScrollPane {
+		
+	// 	DefaultTableModel model;
+		JTable table;
+		String[] classNames = {"One", "Two", "Three"};
+	// 	JComboBox classes;
+		public PropertiesTable() {
+			super();
+	// 		classes.setEditable(true);
+			String[] columns = {
+				"Property",
+				"Value"
+			};
+			Object[][] data = {
+				{"Extends", "void"},
+				{"Access modifier", "Tes"}
+			};
+			table = new JTable(data, columns);
+			this.setViewportView(table);
+		}
 		
 	}
-	
 }
-
-class PropertiesTable extends JScrollPane {
-	
-// 	DefaultTableModel model;
-	JTable table;
-	String[] classNames = {"One", "Two", "Three"};
-// 	JComboBox classes;
-	public PropertiesTable() {
-		super();
-// 		classes.setEditable(true);
-		String[] columns = {
-			"Property",
-			"Value"
-		};
-		Object[][] data = {
-			{"Extends", "void"},
-			{"Access modifier", "Tes"}
-		};
-		table = new JTable(data, columns);
-		this.setViewportView(table);
-	}
-	
-}
-
