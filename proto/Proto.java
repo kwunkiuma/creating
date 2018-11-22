@@ -39,11 +39,6 @@ public class Proto extends JFrame {
 	Classes classes;
 	MyClass currentClass;
 	
-	JPanel panel1 = new JPanel();
-	JPanel panel2 = new JPanel();
-	JPanel panel3 = new JPanel();
-	JPanel panel4 = new JPanel();
-	
 	public Proto() {
 		initMenuBar();
 		
@@ -75,7 +70,6 @@ public class Proto extends JFrame {
 		classPropertiesSplit.setResizeWeight(0.5);
 		
 		// Configure commands
-		commands = new JPanel();
 		commandsScrollPane = new JScrollPane(commands, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 // 		commandsScrollPane.setPreferredSize(new Dimension(100, 300));
 		
@@ -83,14 +77,14 @@ public class Proto extends JFrame {
 		MyMethod a = new MyMethod("A", null);
 		MyMethod z = new MyMethod("Z", null);
 		MyMethod method = new MyMethod("Mestot", null);
-		method.addCommand(new Command("Text", "Value"));
-		method.addCommand(new Command("Textqqqq2", "Value"));
-		method.addCommand(new Command("Textqqqq2", "Value"));
-		method.addCommand(new Command("Textqqqq2", "Value"));
-		method.addCommand(new Command("Textqqqq2", "Value"));
+// 		method.addCommand(new Command("Text", "Value"));
+// 		method.addCommand(new Command("Textqqqq2", "Value"));
+// 		method.addCommand(new Command("Textqqqq2", "Value"));
+// 		method.addCommand(new Command("Textqqqq2", "Value"));
+// 		method.addCommand(new Command("Textqqqq2", "Value"));
 		
 		MyMethod mtd = new MyMethod("Mestwo", null);
-		mtd.addCommand(new Command("Tekusuto", "Baryu"));
+// 		mtd.addCommand(new Command("Tekusuto", "Baryu"));
 		
 		MyClass cls = new MyClass("Kurasu", null);
 		cls.addMethod(method);
@@ -99,18 +93,7 @@ public class Proto extends JFrame {
 		cls.addMethod(mtd);
 		classes.addObject(cls);
 		commandsScrollPane.setViewportView(cls.getPanel());
-		SpringLayout sl = new SpringLayout();
-		commands.setLayout(sl);
 		
-		Command com1 = new Command("Texaasat", "Value");
-		Command com2 = new Command("Text2", "Value");;
-		JPanel pan1 = com1.getPanel();
-		JPanel pan2 = com2.getPanel();
-		JPanel prev = pan2;
-		commands = method.getPanel();
-		System.out.println(sl.getConstraints(pan1));
-		sl.putConstraint(SpringLayout.NORTH, pan1, 10, SpringLayout.SOUTH, pan2);
-		System.out.println(sl.getConstraints(pan1));
 		/**/
 		
 		classSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, classPropertiesSplit, commandsScrollPane);
@@ -300,7 +283,7 @@ public class Proto extends JFrame {
 		
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == print) {
-				currentClass.currentMethod().addCommand(new Command("Print", ""));
+				currentClass.currentMethod().addCommand(new Command(new PresetValue("Print", 1)));
 				updateCommands();
 			}
 		}
@@ -309,34 +292,108 @@ public class Proto extends JFrame {
 	
 }
 
-interface Commando {
-	JPanel getPanel();
+abstract class Value {
+	JPanel panel;
+	
+	public Value() {
+		panel = new JPanel();
+		panel.setBorder(BorderFactory.createLineBorder(Color.black));
+		panel.setBackground(Color.white);
+	}
+	
+	public JPanel getPanel() {
+		return panel;
+	}
 }
+
+class PresetValue extends Value {
+	JLabel label;
+	LinkedList<Value> params;
+	
+	public PresetValue(String value, int numParams) {
+		label = new JLabel(value);
+		params = new LinkedList<Value>();
+		panel.add(label);
+		
+		for (int i = 0; i < numParams; i++) {
+			TextValue temp = new TextValue("");
+			params.add(temp);
+			panel.add(temp.getPanel());
+		}
+		
+	}
+}
+
+class CombinedValue extends Value {
+	static final String[] OPERANDS = new String[] {
+		"+",
+		"-",
+		"*",
+		"/",
+		"%",
+	};
+	Value left;
+	Value right;
+	JComboBox middle;
+	JLabel label;
+	
+	public CombinedValue(Value left, Value right) {
+		super();
+		this.left = left;
+		this.right = right;
+		this.middle = new JComboBox<String>(OPERANDS);
+		panel.add(left.getPanel());
+		panel.add(middle);
+		panel.add(right.getPanel());
+	}
+}
+
+class TextValue extends Value {
+	JTextField textField;
+	/*
+	public TextValue() {
+		super();
+		TextValue("");
+	}*/
+	
+	public TextValue(String value) {
+		super();
+		this.textField = new JTextField(value);
+		panel.add(textField);
+	}
+}
+
+class MethodValue extends Value {
+	JTextField method;
+	Value param;
+	
+	public MethodValue(String method, Value param) {
+		super();
+		this.method = new JTextField(method);
+		this.param = param;
+		panel.add(this.method);
+		panel.add(this.param.getPanel());
+	}
+}
+/*
+class Conditional extends Value {
+	
+}*/
 
 /** Represents one line of code in a method.
 */
-class Command implements Commando{
-	String text, value;
+class Command {
+	Value value;
 	JPanel panel;
-	JLabel label;
-	JTextField textField;
-	SpringLayout springLayout;
 	
-	public Command(String text, String value) {
-		this.text = text;
+	public Command(Value value) {
 		this.value = value;
 		
 		// Add components
-		springLayout = new SpringLayout();
 		panel = new JPanel();
 		panel.setBorder(BorderFactory.createLineBorder(Color.black));
 		panel.setBackground(Color.lightGray);
-		label = new JLabel(text);
-		panel.add(label);
-		if (value != null) {
-			textField = new JTextField(value);
-			panel.add(new JTextField(value));
-		}
+		panel.add(this.value.getPanel());
 	}
 	
 	public JPanel getPanel() {
@@ -456,16 +513,13 @@ class MyMethod implements Comparable {
 		addCommand(command, script.size());
 	}
 	
-	public void addCommand(Command  command, int index) {
+	public void addCommand(Command command, int index) {
 		script.add(index, command);
 		JPanel commandPanel = command.getPanel();
 		if (index != 0) {
-			System.out.println(command.text);
-			System.out.println(script.get(index - 1).text);
 			springLayout.putConstraint(SpringLayout.NORTH, commandPanel, 10, SpringLayout.SOUTH, script.get(index - 1).getPanel());
 		}
 		panel.add(commandPanel);
-		System.out.println("Added " + command + " at " + index);
 	}
 	
 	public JPanel getPanel() {
