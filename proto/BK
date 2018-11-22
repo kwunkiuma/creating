@@ -165,6 +165,7 @@ public class Proto extends JFrame {
 					return;
 				}
 				classes.addObject(new MyClass(name, null));
+				commandsScrollPane.setViewportView(currentClass.getPanel());
 			}
 			if (e.getSource() == methodNew) {
 				String name = JOptionPane.showInputDialog(parent, "Enter a name for your new method:", "New method..", JOptionPane.QUESTION_MESSAGE);
@@ -173,8 +174,9 @@ public class Proto extends JFrame {
 				}
 				System.out.println("Adding " + name + " to " + currentClass.toString());
 				currentClass.addMethod(new MyMethod(name, null));
-				commandsScrollPane.setViewportView(currentClass.getPanel());
-				System.out.println(currentClass.toString());
+// 				commandsScrollPane.setViewportView(currentClass.getPanel());
+// 				System.out.println(currentClass.toString());
+// 				commandsScrollPane.setViewportView(currentClass.getPanel());
 			}
 			// temp
 			else {
@@ -282,7 +284,7 @@ public class Proto extends JFrame {
 			panel = new JPanel();
 			panel.add(print);
 			panel.add(compare);
-			this.setViewportView(panel);
+// 			this.setViewportView(panel);
 		}
 		
 		public void actionPerformed(ActionEvent e) {
@@ -452,53 +454,34 @@ class MyClass {
 	}
 	
 	public JTabbedPane getPanel() {
-		
+		JTabbedPane result = new JTabbedPane();
+		System.out.println("Dont");
+		Iterator<MyMethod> methodIterator = methods.iterator();
+		while (methodIterator.hasNext()) {
+			System.out.println("Me");
+			MyMethod next = methodIterator.next();
+			result.add(next.getName(), next.getPanel());
+		}
+		tabbedPane = result;
 		return tabbedPane;
 	}
 	
 	public void addMethod(MyMethod method) {
-		
-		Component current = tabbedPane.getSelectedComponent();
-		
-		tabbedPane = new JTabbedPane();
-		methods.add(method);
+		this.methods.add(method);
+		System.out.println("Stop");
+		JTabbedPane result = new JTabbedPane();
 		Iterator<MyMethod> methodIterator = methods.iterator();
-		MyMethod result = null;
 		while (methodIterator.hasNext()) {
 			MyMethod next = methodIterator.next();
-			tabbedPane.add(next);
+			result.add(next.getName(), next.getPanel());
 		}
-		if (current != null){
-			tabbedPane.setSelectedComponent(current);
-		}
-		
-		
-		/*
-		int index = -1;
-		System.out.println("1");
-// 		for (int i = 0; i < tabbedPane.getTabCount(); i++) {
-// 		System.out.println("2");
-// 			if (method.compareTo(tabbedPane.getTabComponentAt(i)) < 0) {
-// 				index = i;
-// 				break;
-// 			}
-// 		}
-		
-		System.out.println("3");
-		if (index == -1) { // Item goes on end
-			index = tabbedPane.getTabCount();
-		}
-		System.out.println("4");
-		tabbedPane.add(method, 1);
-		this.methods.add(method);
-		tabbedPane.add(method.getName(), method.getPanel());
-		
-		System.out.println("5");*/
+		tabbedPane = result;
+// 		tabbedPane.add(method.getName(), method.getPanel());
 	}
 	
 	public String toString() {
 		String result = this.name;
-		/* For testing
+// 		/* For testing
 		Iterator<MyMethod> methodIterator = methods.iterator();
 			while (methodIterator.hasNext()) {
 				MyMethod next = methodIterator.next();
@@ -539,7 +522,7 @@ class Argument {
 
 /** Represents methods in a class
 */
-class MyMethod extends JScrollPane implements Comparable {
+class MyMethod implements Comparable {
 	String name;
 	MyClass returnType;
 	LinkedList<Command> script;
@@ -548,15 +531,12 @@ class MyMethod extends JScrollPane implements Comparable {
 	SpringLayout springLayout;
 	
 	public MyMethod(String name, MyClass returnType) {
-		super();
-		this.setName(name);
 		this.name = name;
 		this.returnType = returnType;
 		script = new LinkedList<Command>();
 		panel = new JPanel();
 		springLayout = new SpringLayout();
 		panel.setLayout(springLayout);
-		this.setViewportView(panel);
 	}
 	
 	// Two methods are same if they have the same method signature
