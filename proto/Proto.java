@@ -108,27 +108,24 @@ public class Proto extends JFrame {
 		// Configure boxes
 		boxes = new JPanel();
 		boxesScrollPane = new JScrollPane(boxes, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		boxesScrollPane.setPreferredSize(new Dimension(100, 300));
+// 		boxesScrollPane.setPreferredSize(new Dimension(100, 300));
 		MyMethod method = new MyMethod("Mestot", null);
 		method.addCommand(new Command("Text", "Value"));
 		method.addCommand(new Command("Textqqqq2", "Value"));
 		method.addCommand(new Command("Textqqqq2", "Value"));
 		method.addCommand(new Command("Textqqqq2", "Value"));
 		method.addCommand(new Command("Textqqqq2", "Value"));
-		method.addCommand(new Command("Textqqqq2", "Value"));
-		method.addCommand(new Command("Textqqqq2", "Value"));
-		method.addCommand(new Command("Textqqqq2", "Value"));
-		method.addCommand(new Command("Textqqqq2", "Value"));
-		method.addCommand(new Command("Textqqqq2", "Value"));
-		method.addCommand(new Command("Textqqqq2", "Value"));
-		method.addCommand(new Command("Textqqqq2", "Value"));
-		method.addCommand(new Command("Textqqqq2", "Value"));
-		method.addCommand(new Command("Textqqqq2", "Value"));
-		method.addCommand(new Command("Textqqqq2", "Value"));
-		method.addCommand(new Command("Textqqqq2", "Value"));
-		method.addCommand(new Command("Textqqqq2", "Value"));
+		
+		MyMethod mtd = new MyMethod("Mestwo", null);
+		mtd.addCommand(new Command("Tekusuto", "Baryu"));
 // 		boxes.add(method.getPanel());
-		boxesScrollPane.setViewportView(method.getPanel());
+		
+		MyClass cls = new MyClass("Kurasu", null);
+		cls.addMethod(method);
+		cls.addMethod(mtd);
+		
+// 		boxesScrollPane.setViewportView(method.getPanel());
+		boxesScrollPane.setViewportView(cls.getPanel());
 		SpringLayout sl = new SpringLayout();
 		boxes.setLayout(sl);
 		
@@ -201,7 +198,7 @@ public class Proto extends JFrame {
 		}
 		
 		public void valueChanged(TreeSelectionEvent e) {
-// 			label.setText(e.getPath().getLastPathComponent().toString());
+			
 		}
 		
 		public void mouseClicked(MouseEvent e) {
@@ -342,6 +339,10 @@ class MyClass {
 			}
 		}
 		return tabbedPane;
+	}
+	
+	public void addMethod(MyMethod method) {
+		this.methods.add(method);
 	}
 	
 	public String toString() {
