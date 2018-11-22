@@ -1,12 +1,15 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 import javax.swing.*;
 import javax.swing.plaf.basic.*;
 import javax.swing.tree.*;
 import javax.swing.event.*;
 
 public class Proto extends JFrame {
-	
+	MenuBarListener menuBarListener = new MenuBarListener();
+	JFrame
+		parent;
 	JMenuBar
 		menuBar;
 	JMenu
@@ -25,7 +28,8 @@ public class Proto extends JFrame {
 		classSplit,
 		methodPropertySplit,
 		centreSplit;
-	JScrollPane scrollPane;
+	JScrollPane
+		boxesScrollPane;
 	JPanel
 		classPanel,
 		methodProperties = new JPanel(),
@@ -34,6 +38,12 @@ public class Proto extends JFrame {
 	JLabel label = new JLabel("Test");
 	DefaultMutableTreeNode top = new DefaultMutableTreeNode("Top of tree");
 	Classes classes;
+	
+	
+		JPanel panel1 = new JPanel();
+		JPanel panel2 = new JPanel();
+		JPanel panel3 = new JPanel();
+		JPanel panel4 = new JPanel();
 	
 	public Proto() {
 		super();
@@ -53,6 +63,7 @@ public class Proto extends JFrame {
 		classMenu = new JMenu("Class");
 		classNew = new JMenuItem("New");
 		classRemove = new JMenuItem("Remove");
+		classNew.addActionListener(menuBarListener);
 		menuBar.add(classMenu);
 		classMenu.add(classNew);
 		classMenu.add(classRemove);
@@ -78,7 +89,7 @@ public class Proto extends JFrame {
 		
 		// Populate table with sample data
 		for (int i = 0; i < 10; i++) {
-			DefaultMutableTreeNode temp = classes.addObject(classes.root, Integer.toString(i));
+			DefaultMutableTreeNode temp = classes.addObject(null, new MyClass(Integer.toString(i), null));
 			if (i == 4) {
 				classes.addObject(temp, "Child");
 			}
@@ -94,17 +105,54 @@ public class Proto extends JFrame {
 		classPropertiesSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true, classPanel, propertiesPanel);
 		classPropertiesSplit.setResizeWeight(0.5);
 		
+		// Configure boxes
 		boxes = new JPanel();
-		classSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, classPropertiesSplit, boxes);
+		boxesScrollPane = new JScrollPane(boxes, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		boxesScrollPane.setPreferredSize(new Dimension(100, 300));
+		MyMethod method = new MyMethod("Mestot", null);
+		method.addCommand(new Command("Text", "Value"));
+		method.addCommand(new Command("Textqqqq2", "Value"));
+		method.addCommand(new Command("Textqqqq2", "Value"));
+		method.addCommand(new Command("Textqqqq2", "Value"));
+		method.addCommand(new Command("Textqqqq2", "Value"));
+		method.addCommand(new Command("Textqqqq2", "Value"));
+		method.addCommand(new Command("Textqqqq2", "Value"));
+		method.addCommand(new Command("Textqqqq2", "Value"));
+		method.addCommand(new Command("Textqqqq2", "Value"));
+		method.addCommand(new Command("Textqqqq2", "Value"));
+		method.addCommand(new Command("Textqqqq2", "Value"));
+		method.addCommand(new Command("Textqqqq2", "Value"));
+		method.addCommand(new Command("Textqqqq2", "Value"));
+		method.addCommand(new Command("Textqqqq2", "Value"));
+		method.addCommand(new Command("Textqqqq2", "Value"));
+		method.addCommand(new Command("Textqqqq2", "Value"));
+		method.addCommand(new Command("Textqqqq2", "Value"));
+// 		boxes.add(method.getPanel());
+		boxesScrollPane.setViewportView(method.getPanel());
+		SpringLayout sl = new SpringLayout();
+		boxes.setLayout(sl);
+		
+		Command com1 = new Command("Texaasat", "Value");
+		Command com2 = new Command("Text2", "Value");;
+		JPanel pan1 = com1.getPanel();
+		JPanel pan2 = com2.getPanel();
+		JPanel prev = pan2;
+		boxes = method.getPanel();
+		System.out.println(sl.getConstraints(pan1));
+		sl.putConstraint(SpringLayout.NORTH, pan1, 10, SpringLayout.SOUTH, pan2);
+		System.out.println(sl.getConstraints(pan1));
+		
+		
+		
+		classSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, classPropertiesSplit, boxesScrollPane);
 		classSplit.setResizeWeight(0);
 		
-		
 		methodPropertySplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true, methodProperties, label);
-		
 		
 		methodPropertySplit.setResizeWeight(0.5);
 		centreSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, classSplit, methodPropertySplit);
 		centreSplit.setResizeWeight(1);
+		
 		
 		add(centreSplit);
 	}
@@ -112,9 +160,37 @@ public class Proto extends JFrame {
 	// Main method
 	public static void main(String[] args) {
 		Proto window = new Proto();
+		window.parent = window;
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setSize(1280, 720);
+		window.pack();
 		window.setVisible(true);
+	}
+	
+	class MenuBarListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == classNew) {
+				String name = JOptionPane.showInputDialog(parent, "Enter a name for your new class:", "New class..", JOptionPane.QUESTION_MESSAGE);
+				if (name == null || name.trim().equals("")) {
+					return;
+				}
+				classes.addObject(new MyClass(name, null));
+			}
+		}
+	}
+	
+	class BoxMotionListener implements MouseMotionListener {
+		public void mouseDragged(MouseEvent e) {
+			System.out.println("Drag");
+		}
+		
+		public void mouseMoved(MouseEvent e) {
+			if (e.getSource() == panel1) {
+				System.out.println("1");
+			}
+			System.out.println(e.getLocationOnScreen());
+// 			System.out.println(e.getX() + ", " + e.getY());
+		}
 	}
 	
 	class ClassesListener implements TreeSelectionListener, MouseListener {
@@ -207,7 +283,147 @@ public class Proto extends JFrame {
 			table = new JTable(data, columns);
 			this.setViewportView(table);
 		}
+	}
+	
+	
+}
+
+class Command {
+	String text, value;
+	JPanel panel;
+	JLabel label;
+	JTextField textField;
+	SpringLayout springLayout;
+	public Command(String text, String value) {
+		this.text = text;
+		this.value = value;
+		// Add components
+		springLayout = new SpringLayout();
+		panel = new JPanel();
+		panel.setBorder(BorderFactory.createLineBorder(Color.black));
+		panel.setBackground(Color.lightGray);
+		label = new JLabel(text);
+		panel.add(label);
+// 		springLayout.putConstraint(SpringLayout.NORTH, label, 5, SpringLayout.NORTH, label.getParent());
+// 		springLayout.putConstraint(SpringLayout.WEST, label, 5, SpringLayout.WEST, this);
+		if (value != null) {
+			textField = new JTextField(value);
+// 				springLayout.putConstraint(SpringLayout.WEST, textField, 20, SpringLayout.EAST, label);
+			panel.add(new JTextField(value));
+		}
+	}
+	
+	public JPanel getPanel() {
+		return panel;
+	}
+}
+
+class MyClass {
+	String name;
+	MyClass inherits;
+	HashSet<String> implement; // Optional
+	TreeSet<MyMethod> methods;
+	JTabbedPane tabbedPane;
+	
+	public MyClass(String name, MyClass inherits) {
+		this.name = name;
+		this.inherits = inherits;
+		this.methods = new TreeSet<MyMethod>();
+// 		this.tabbedPane = new JTabbedPane();
+	}
+	
+	public JTabbedPane getPanel() {
+		if (tabbedPane == null) {
+			tabbedPane = new JTabbedPane();
+			Iterator<MyMethod> methodIterator = methods.iterator();
+			while (methodIterator.hasNext()) {
+				MyMethod next = methodIterator.next();
+				tabbedPane.add(next.getName(), next.getPanel());
+			}
+		}
+		return tabbedPane;
+	}
+	
+	public String toString() {
+		return this.name;
+	}
+}
+
+class Argument {
+	String name;
+	MyClass type;
+	
+	public boolean equals(Argument operand) {
+		if (this.type.name.equals(operand.type.name)) {
+			return true;
+		}
+		return false;
+	}
+}
+
+class MyMethod implements Comparable {
+	String name;
+	MyClass returnType;
+	LinkedList<Command> script;
+	LinkedList<Argument> arguments;
+	JPanel panel;
+	SpringLayout springLayout;
+	
+	public MyMethod(String name, MyClass returnType) {
+		this.name = name;
+		this.returnType = returnType;
+		script = new LinkedList<Command>();
+		panel = new JPanel();
+		springLayout = new SpringLayout();
+		panel.setLayout(springLayout);
+	}
+	
+	// Two methods are same if they have the same method signature
+	public boolean equals(MyMethod method) {
 		
+		// Compare names
+		if (this.name != method.name) {
+			return false;
+		}
+		
+		// Compare arguments
+		ListIterator<Argument> sourceIterator = this.arguments.listIterator(0);
+		ListIterator<Argument> operandIterator = method.arguments.listIterator(0);
+		while (sourceIterator.hasNext() && operandIterator.hasNext()) {
+			if (!sourceIterator.next().equals(operandIterator.next())) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	public void addCommand(Command command) {
+		addCommand(command, script.size());
+	}
+	
+	public void addCommand(Command command, int index) {
+		script.add(index, command);
+		JPanel commandPanel = command.getPanel();
+		if (index != 0) {
+			System.out.println(command.text);
+			System.out.println(script.get(index - 1).text);
+			springLayout.putConstraint(SpringLayout.NORTH, commandPanel, 10, SpringLayout.SOUTH, script.get(index - 1).getPanel());
+		}
+		panel.add(commandPanel);
+		System.out.println("Added " + command + " at " + index);
+	}
+	
+	public JPanel getPanel() {
+		return panel;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public int compareTo(Object o) {
+		MyMethod method = (MyMethod) o;
+		return this.name.compareTo(method.getName());
 	}
 }
 
@@ -250,26 +466,27 @@ class Classes extends JScrollPane {
 			}
 		}
 	}
-	/*
-	public void renameCurrentNode() {
-		TreePath currentSelection = tree.getSelectionPath();
-		if (currentSelection != null) {
-			
-		}
-	}*/
+	
+	// Do ths?
+// 	public DefaultMutableTreeNode getSelectionPath() {
+// 		
+// 	}
+	
+	public DefaultMutableTreeNode addObject(Object child) {
+		return addObject(root, child);
+	}
+	
+	public int getRowForLocation(MouseEvent e) {
+		return tree.getRowForLocation(e.getX(), e.getY());
+	}
 	
 	public DefaultMutableTreeNode addObject(DefaultMutableTreeNode parent, Object child) {
 		DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(child);
-// 		TreePath newPath = new TreePath(parent, 
 		if (parent == null) {
 			parent = root;
 		}
 		model.insertNodeInto(childNode, parent, parent.getChildCount());
 		tree.scrollPathToVisible(new TreePath(childNode.getPath()));
 		return childNode;
-	}
-	
-	public int getRowForLocation(MouseEvent e) {
-		return tree.getRowForLocation(e.getX(), e.getY());
 	}
 }
