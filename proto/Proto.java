@@ -91,7 +91,7 @@ public class Proto extends JFrame {
 		for (int i = 0; i < 10; i++) {
 			DefaultMutableTreeNode temp = classes.addObject(null, new MyClass(Integer.toString(i), null));
 			if (i == 4) {
-				classes.addObject(temp, "Child");
+				classes.addObject(temp, new MyClass("Child", null));
 			}
 		}
 		
@@ -123,7 +123,7 @@ public class Proto extends JFrame {
 		MyClass cls = new MyClass("Kurasu", null);
 		cls.addMethod(method);
 		cls.addMethod(mtd);
-		
+		classes.addObject(cls);
 // 		boxesScrollPane.setViewportView(method.getPanel());
 		boxesScrollPane.setViewportView(cls.getPanel());
 		SpringLayout sl = new SpringLayout();
@@ -198,7 +198,10 @@ public class Proto extends JFrame {
 		}
 		
 		public void valueChanged(TreeSelectionEvent e) {
-			
+			DefaultMutableTreeNode dtn = (DefaultMutableTreeNode) e.getPath().getLastPathComponent();
+			MyClass cls = (MyClass) dtn.getUserObject();
+			System.out.println(cls);
+			boxesScrollPane.setViewportView(cls.getPanel());
 		}
 		
 		public void mouseClicked(MouseEvent e) {
