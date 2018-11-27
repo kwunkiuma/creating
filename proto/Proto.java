@@ -65,7 +65,7 @@ public class Proto extends JFrame {
 		commandsScrollPane = new JScrollPane(commands, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 // 		commandsScrollPane.setPreferredSize(new Dimension(100, 300));
 		
-// 		/* Test
+		/* Test
 		MyMethod a = new MyMethod("A", null);
 		MyMethod z = new MyMethod("Z", null);
 		MyMethod method = new MyMethod("Mestot", null);
@@ -91,7 +91,6 @@ public class Proto extends JFrame {
 		methodPropertySplit.setResizeWeight(0.5);
 		centreSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, classSplit, methodPropertySplit);
 		centreSplit.setResizeWeight(1);
-		
 		
 		add(centreSplit);
 	}
@@ -296,23 +295,32 @@ public class Proto extends JFrame {
 	
 }
 
-abstract class Value {
-	JPanel panel;
+abstract class Value extends JPanel implements MouseListener {
+
+// 	JPanel panel;
 	
 	public Value() {
-		panel = new JPanel();
-		panel.setBorder(BorderFactory.createLineBorder(Color.black));
-		panel.setBackground(Color.white);
+		super();
+		this.setBorder(BorderFactory.createLineBorder(Color.black));
+		this.setBackground(Color.white);
+		this.addMouseListener(this);
 	}
 	
 	public JPanel getPanel() {
-		return panel;
+		
+		return this;
+	}
+	
+	public void changeValue(Value newValue) {
+		Value parent = (Value) this.getParent();
+		parent.changeValue(newValue);
+		parent.add(newValue.getPanel());
 	}
 	
 	class ValuePopupMenu extends JPopupMenu implements ActionListener {
 		
 		JMenu
-			change = new JMenu("Change to.."),
+// 			change = new JMenu("Change to.."),
 			preset = new JMenu("Preset");
 		JMenuItem
 			text = new JMenuItem("Text"),
@@ -322,15 +330,50 @@ abstract class Value {
 		public ValuePopupMenu() {
 			super();
 			
-			change.addActionListener(this);
-			this.add(change);
+// 			this.add(change);
+// 			change.add(preset);
+			this.add(text);
+			this.add(combined);
+			this.add(method);
 			
-			
+			text.addActionListener(this);
+			combined.addActionListener(this);
+			method.addActionListener(this);
 		}
 		
 		public void actionPerformed(ActionEvent e) {
 			
+			if (e.getSource() == text) {
+				JMenuItem item = (JMenuItem) e.getSource();
+				JPopupMenu menu = (JPopupMenu) item.getParent();
+				Value invoker = (Value) menu.getInvoker();
+				invoker.changeValue(new MethodValue("aaa", new TextValue("Se2")));
+				System.out.println("Aya");
+			} else if (e.getSource() == combined) {
+				
+			} else if (e.getSource() == method) {
+				
+			}
 		}
+	}
+	
+	public void mouseClicked(MouseEvent e) {
+		if (SwingUtilities.isRightMouseButton(e)) {
+			ValuePopupMenu valuePopupMenu = new ValuePopupMenu();
+			valuePopupMenu.show(e.getComponent(), e.getX(), e.getY());
+		}
+	}
+		
+	public void mouseExited(MouseEvent e) {
+	}
+	
+	public void mouseEntered(MouseEvent e) {
+	}
+	
+	public void mouseReleased(MouseEvent e) {
+	}
+	
+	public void mousePressed(MouseEvent e) {
 	}
 }
 
@@ -341,14 +384,13 @@ class PresetValue extends Value {
 	public PresetValue(String value, int numParams) {
 		label = new JLabel(value);
 		params = new LinkedList<Value>();
-		panel.add(label);
+		this.add(label);
 		
 		for (int i = 0; i < numParams; i++) {
 			TextValue temp = new TextValue("");
 			params.add(temp);
-			panel.add(temp.getPanel());
+			this.add(temp.getPanel());
 		}
-		
 	}
 }
 
@@ -370,9 +412,17 @@ class CombinedValue extends Value {
 		this.left = left;
 		this.right = right;
 		this.middle = new JComboBox<String>(OPERANDS);
-		panel.add(left.getPanel());
-		panel.add(middle);
-		panel.add(right.getPanel());
+		this.add(left.getPanel());
+		this.add(middle);
+		this.add(right.getPanel());
+	}
+	
+	public void setLeft(Value newValue) {
+		this.left = newValue;
+	}
+	
+	public void setRight(Value newValue) {
+		this.right = newValue;
 	}
 }
 
@@ -387,7 +437,7 @@ class TextValue extends Value {
 	public TextValue(String value) {
 		super();
 		this.textField = new JTextField(value);
-		panel.add(textField);
+		this.add(textField);
 	}
 }
 
@@ -399,8 +449,8 @@ class MethodValue extends Value {
 		super();
 		this.method = new JTextField(method);
 		this.param = param;
-		panel.add(this.method);
-		panel.add(this.param.getPanel());
+		this.add(this.method);
+		this.add(this.param.getPanel());
 	}
 }
 /*
@@ -426,6 +476,10 @@ class Command {
 	
 	public JPanel getPanel() {
 		return panel;
+	}
+	
+	public void setValue(Value newValue) {
+		this.value = newValue;
 	}
 }
 
@@ -468,32 +522,9 @@ class MyClass {
 			MyMethod next = methodIterator.next();
 			tabbedPane.add(next);
 		}
-		if (current != null){
+		if (current != null) {
 			tabbedPane.setSelectedComponent(current);
 		}
-		
-		
-		/*
-		int index = -1;
-		System.out.println("1");
-// 		for (int i = 0; i < tabbedPane.getTabCount(); i++) {
-// 		System.out.println("2");
-// 			if (method.compareTo(tabbedPane.getTabComponentAt(i)) < 0) {
-// 				index = i;
-// 				break;
-// 			}
-// 		}
-		
-		System.out.println("3");
-		if (index == -1) { // Item goes on end
-			index = tabbedPane.getTabCount();
-		}
-		System.out.println("4");
-		tabbedPane.add(method, 1);
-		this.methods.add(method);
-		tabbedPane.add(method.getName(), method.getPanel());
-		
-		System.out.println("5");*/
 	}
 	
 	public String toString() {
@@ -586,7 +617,7 @@ class MyMethod extends JScrollPane implements Comparable {
 		script.add(index, command);
 		JPanel commandPanel = command.getPanel();
 		if (index != 0) {
-			springLayout.putConstraint(SpringLayout.NORTH, commandPanel, 10, SpringLayout.SOUTH, script.get(index - 1).getPanel());
+			springLayout.putConstraint(SpringLayout.NORTH, commandPanel, 1, SpringLayout.SOUTH, script.get(index - 1).getPanel());
 		}
 		panel.add(commandPanel);
 	}

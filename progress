@@ -1,9 +1,51 @@
-Week 1
+Week 3
 	Tutorials
 	Trying out objects
-Week 2
+Week 4
 	Adding elements
 	Figured out mouse tracking
 	Created split pane
-Week 3
-	
+Week 5
+	Created project backlog
+		Contains immediate small things to work on
+	Added menu bar
+	Added popup menu
+Week 6
+	Added popup menu
+	Added removing classes
+	Separated classes
+Week 7
+	Add new classes
+		Class
+		Method
+		Command
+	Working on boxes
+		Box layout
+		Too close together
+	Tried Spring
+		Objects disappeared with layout
+		Stop messing with this
+	Started doing classes and methods
+		Should probably have done earlier
+	Got command class working
+	Got it to show script
+	Struggling with spring layout again
+	Fixed problem but not scrolling
+Week 8
+	Separated classes for easier code management
+	Trying to add command via method
+		Fixed by setting viewport
+	Decided to have separate windows for methods unlike Scratch where things were everywhere
+	Added run script
+	Going to work on adding commands
+		Might use interface to allow command types
+		Determining how many parameters
+	Use generics for value?
+		Drawing value is drawing anything that implements value
+		Could be more stuff or a variable
+	Did some generics
+		Changed mind to use extend
+	Completed value classes
+	Decided to use right click more
+		Right click to convert value stuff
+	Making methods into panels
