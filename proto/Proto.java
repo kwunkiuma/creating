@@ -34,7 +34,7 @@ public class Proto extends JFrame {
 		methodProperties = new JPanel(),
 		commands,
 		addCommandsPanel;
-	JLabel label = new JLabel("Test");
+	JLabel label = new JLabel("");
 	DefaultMutableTreeNode top = new DefaultMutableTreeNode("Top of tree");
 	Classes classes;
 	MyClass currentClass;
@@ -65,7 +65,7 @@ public class Proto extends JFrame {
 		commandsScrollPane = new JScrollPane(commands, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 // 		commandsScrollPane.setPreferredSize(new Dimension(100, 300));
 		
-		/* Test
+// 		/* Test
 		MyMethod a = new MyMethod("A", null);
 		MyMethod z = new MyMethod("Z", null);
 		MyMethod method = new MyMethod("Mestot", null);
@@ -307,7 +307,6 @@ abstract class Value extends JPanel implements MouseListener {
 	}
 	
 	public JPanel getPanel() {
-		
 		return this;
 	}
 	
@@ -344,10 +343,13 @@ abstract class Value extends JPanel implements MouseListener {
 		public void actionPerformed(ActionEvent e) {
 			
 			if (e.getSource() == text) {
+				System.out.println("Ayo");
 				JMenuItem item = (JMenuItem) e.getSource();
 				JPopupMenu menu = (JPopupMenu) item.getParent();
+				System.out.println("Don't");
 				Value invoker = (Value) menu.getInvoker();
 				invoker.changeValue(new MethodValue("aaa", new TextValue("Se2")));
+				System.out.println("Stop");
 				System.out.println("Aya");
 			} else if (e.getSource() == combined) {
 				
@@ -468,10 +470,10 @@ class Command {
 		this.value = value;
 		
 		// Add components
-		panel = new JPanel();
-		panel.setBorder(BorderFactory.createLineBorder(Color.black));
-		panel.setBackground(Color.lightGray);
-		panel.add(this.value.getPanel());
+// 		panel = new JPanel();
+// 		panel.setBorder(BorderFactory.createLineBorder(Color.black));
+// 		panel.setBackground(Color.lightGray);
+		panel = this.value.getPanel();
 	}
 	
 	public JPanel getPanel() {
@@ -506,7 +508,6 @@ class MyClass {
 	}
 	
 	public JTabbedPane getPanel() {
-		
 		return tabbedPane;
 	}
 	
@@ -570,13 +571,13 @@ class Argument {
 
 /** Represents methods in a class
 */
-class MyMethod extends JScrollPane implements Comparable {
+class MyMethod extends JScrollPane implements Comparable, MouseListener {
 	String name;
 	MyClass returnType;
 	LinkedList<Command> script;
 	LinkedList<Argument> arguments;
 	JPanel panel;
-	SpringLayout springLayout;
+	BoxLayout boxLayout;
 	
 	public MyMethod(String name, MyClass returnType) {
 		super();
@@ -585,8 +586,8 @@ class MyMethod extends JScrollPane implements Comparable {
 		this.returnType = returnType;
 		script = new LinkedList<Command>();
 		panel = new JPanel();
-		springLayout = new SpringLayout();
-		panel.setLayout(springLayout);
+		boxLayout = new BoxLayout(panel, BoxLayout.Y_AXIS);
+		panel.setLayout(boxLayout);
 		this.setViewportView(panel);
 	}
 	
@@ -614,16 +615,19 @@ class MyMethod extends JScrollPane implements Comparable {
 	}
 	
 	public void addCommand(Command command, int index) {
+		command.getPanel().addMouseListener(this);
 		script.add(index, command);
 		JPanel commandPanel = command.getPanel();
-		if (index != 0) {
-			springLayout.putConstraint(SpringLayout.NORTH, commandPanel, 1, SpringLayout.SOUTH, script.get(index - 1).getPanel());
-		}
 		panel.add(commandPanel);
 	}
 	
-	public JPanel getPanel() {
-		return panel;
+	public void removeCommand(Command command) {
+		
+	}
+	
+	// Changed to return itself instead of returning a panel
+	public JScrollPane getPanel() {
+		return this;
 	}
 	
 	public String getName() {
@@ -637,6 +641,26 @@ class MyMethod extends JScrollPane implements Comparable {
 	
 	public String toString() {
 		return name;
+	}
+	
+	
+	public void mouseClicked(MouseEvent e) {
+		if (SwingUtilities.isMiddleMouseButton(e)) {
+			System.out.println("Oof");
+			System.out.println(script.remove(e.getSource()));
+		}
+	}
+		
+	public void mouseExited(MouseEvent e) {
+	}
+	
+	public void mouseEntered(MouseEvent e) {
+	}
+	
+	public void mouseReleased(MouseEvent e) {
+	}
+	
+	public void mousePressed(MouseEvent e) {
 	}
 }
 
