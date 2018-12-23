@@ -286,7 +286,7 @@ public class Proto extends JFrame {
 		
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == print) {
-				currentClass.currentMethod().addCommand(new Command(new PresetValue("Print", 1)));
+				currentClass.currentMethod().addCommand(new PresetValue("Print", 1));
 				updateCommands();
 			}
 		}
@@ -430,6 +430,8 @@ class CombinedValue extends Value {
 
 class TextValue extends Value {
 	JTextField textField;
+	MyDocumentListener documentListener = new MyDocumentListener();
+	
 	/*
 	public TextValue() {
 		super();
@@ -439,7 +441,31 @@ class TextValue extends Value {
 	public TextValue(String value) {
 		super();
 		this.textField = new JTextField(value);
+		this.textField.getDocument().putProperty("parent", this.textField);
+		this.textField.getDocument().addDocumentListener(documentListener);
 		this.add(textField);
+	}
+	
+	class MyDocumentListener implements DocumentListener {
+		public MyDocumentListener() {
+		}
+		
+		public void adjust(DocumentEvent e) {
+			JTextField textField = (JTextField) e.getDocument().getProperty("parent");
+			textField.getParent().getParent().validate();
+		}
+		
+		public void changedUpdate(DocumentEvent e) {
+			adjust(e);
+		}
+		
+		public void insertUpdate(DocumentEvent e) {
+			adjust(e);
+		}
+		
+		public void removeUpdate(DocumentEvent e) {
+			adjust(e);
+		}
 	}
 }
 
@@ -462,27 +488,19 @@ class Conditional extends Value {
 
 /** Represents one line of code in a method.
 */
-class Command {
+class Command extends JPanel {
 	Value value;
 	JPanel panel;
 	
 	public Command(Value value) {
-		this.value = value;
 		
 		// Add components
-// 		panel = new JPanel();
-// 		panel.setBorder(BorderFactory.createLineBorder(Color.black));
-// 		panel.setBackground(Color.lightGray);
-		panel = this.value.getPanel();
+		panel = new JPanel();
+		panel.setBorder(BorderFactory.createLineBorder(Color.black));
+		panel.setBackground(Color.lightGray);
+		this.value = value;
 	}
 	
-	public JPanel getPanel() {
-		return panel;
-	}
-	
-	public void setValue(Value newValue) {
-		this.value = newValue;
-	}
 }
 
 /** Represents one line of code in a method.
@@ -574,7 +592,7 @@ class Argument {
 class MyMethod extends JScrollPane implements Comparable, MouseListener {
 	String name;
 	MyClass returnType;
-	LinkedList<Command> script;
+	LinkedList<Value> script;
 	LinkedList<Argument> arguments;
 	JPanel panel;
 	BoxLayout boxLayout;
@@ -584,7 +602,7 @@ class MyMethod extends JScrollPane implements Comparable, MouseListener {
 		this.setName(name);
 		this.name = name;
 		this.returnType = returnType;
-		script = new LinkedList<Command>();
+		script = new LinkedList<Value>();
 		panel = new JPanel();
 		boxLayout = new BoxLayout(panel, BoxLayout.Y_AXIS);
 		panel.setLayout(boxLayout);
@@ -610,19 +628,21 @@ class MyMethod extends JScrollPane implements Comparable, MouseListener {
 		return true;
 	}
 	
-	public void addCommand(Command command) {
+	public void addCommand(Value command) {
 		addCommand(command, script.size());
 	}
 	
-	public void addCommand(Command command, int index) {
-		command.getPanel().addMouseListener(this);
+	public void addCommand(Value command, int index) {
+		command.addMouseListener(this);
 		script.add(index, command);
-		JPanel commandPanel = command.getPanel();
-		panel.add(commandPanel);
+		panel.add(command);
 	}
 	
-	public void removeCommand(Command command) {
-		
+	public void removeCommand(Value command) {
+		System.out.println(script.remove(command));
+		panel.remove(command);
+		panel.validate();
+		this.repaint(); // 50L as param?
 	}
 	
 	// Changed to return itself instead of returning a panel
@@ -647,10 +667,11 @@ class MyMethod extends JScrollPane implements Comparable, MouseListener {
 	public void mouseClicked(MouseEvent e) {
 		if (SwingUtilities.isMiddleMouseButton(e)) {
 			System.out.println("Oof");
-			System.out.println(script.remove(e.getSource()));
+			Value command = (Value) e.getSource();
+			removeCommand(command);
 		}
 	}
-		
+	
 	public void mouseExited(MouseEvent e) {
 	}
 	
