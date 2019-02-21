@@ -2,10 +2,22 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import javax.swing.*;
+import javax.swing.border.*;
+import javax.swing.event.*;
 import javax.swing.plaf.basic.*;
 import javax.swing.tree.*;
-import javax.swing.event.*;
 
+/** Description.
+	@author (classes and interfaces only, required)
+	@version (classes and interfaces only, required. See footnote 1)
+	@param (methods and constructors only)
+	@return (methods only)
+	@exception (@throws is a synonym added in Javadoc 1.2)
+	@see 
+	@since 
+	@serial (or @serialField or @serialData)
+	@deprecated (see How and When To Deprecate APIs)
+*/
 public class Proto extends JFrame {
 	JFrame
 		parent;
@@ -39,6 +51,8 @@ public class Proto extends JFrame {
 	Classes classes;
 	MyClass currentClass;
 	
+	/** Creates table elements and layout.
+	*/
 	public Proto() {
 		initMenuBar();
 		
@@ -51,7 +65,7 @@ public class Proto extends JFrame {
 		classes.tree.addMouseListener(classesListener);
 		classPanel.add(classes);
 		
-		// Initialise 
+		// Initialise commands panel
 		addCommandsPanel = new JPanel();
 		addCommandsPanel.setLayout(new GridLayout(0,1));
 		AddCommandsScrollPane addCommandsScrollPane = new AddCommandsScrollPane();
@@ -63,20 +77,18 @@ public class Proto extends JFrame {
 		
 		// Configure commands
 		commandsScrollPane = new JScrollPane(commands, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-// 		commandsScrollPane.setPreferredSize(new Dimension(100, 300));
 		
-// 		/* Test
-		MyMethod a = new MyMethod("A", null);
-		MyMethod z = new MyMethod("Z", null);
-		MyMethod method = new MyMethod("Mestot", null);
+// 		/* Test // Comment and uncomment this to add sample data
+		MyMethod a = new MyMethod("methodA", null);
+		MyMethod b = new MyMethod("methodB", null);
+		MyMethod c = new MyMethod("methodC", null);
+		MyMethod d = new MyMethod("methodD", null);
 		
-		MyMethod mtd = new MyMethod("Mestwo", null);
-		
-		MyClass cls = new MyClass("Kurasu", null);
-		cls.addMethod(method);
+		MyClass cls = new MyClass("classA", null);
 		cls.addMethod(a);
-		cls.addMethod(z);
-		cls.addMethod(mtd);
+		cls.addMethod(b);
+		cls.addMethod(c);
+		cls.addMethod(d);
 		classes.addObject(cls);
 		currentClass = cls;
 		commandsScrollPane.setViewportView(currentClass.getPanel());
@@ -135,15 +147,17 @@ public class Proto extends JFrame {
 		methodMenu.add(methodNew);
 		methodMenu.add(methodRemove);
 		
-		
 		this.setJMenuBar(menuBar);
 	}
 	
+	/** Does something.
+		Is this even needed?
+	*/
 	public void updateCommands() {
 		commandsScrollPane.setViewportView(currentClass.getPanel());
 	}
 	
-	/** Creates main window.
+	/** Main method.
 	*/
 	public static void main(String[] args) {
 		Proto window = new Proto();
@@ -154,7 +168,7 @@ public class Proto extends JFrame {
 		window.setVisible(true);
 	}
 	
-	/** Manages clicks on all menu bar items
+	/** Manages clicks on all menu bar items.
 	*/
 	class MenuBarListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
@@ -175,7 +189,15 @@ public class Proto extends JFrame {
 				commandsScrollPane.setViewportView(currentClass.getPanel());
 				System.out.println(currentClass.toString());
 			}
-			// temp
+			if (e.getSource() == methodRemove) {
+				int response = JOptionPane.showConfirmDialog(parent, "Are you sure you want to remove this method?", "Remove method", JOptionPane.YES_NO_OPTION);
+				System.out.println(response);
+				if (response == 1) {
+					return;
+				}
+				currentClass.removeMethod(currentClass.currentMethod());
+				
+			}
 			else {
 				// TEST HERE
 			}
@@ -190,7 +212,6 @@ public class Proto extends JFrame {
 		}
 		
 		public void mouseMoved(MouseEvent e) {
-			
 		}
 	}
 	
@@ -266,6 +287,7 @@ public class Proto extends JFrame {
 			
 			if (e.getSource() == rename) {
 // 				classes.renameCurrentNode();
+//				TODO
 			}
 		}
 	}
@@ -286,37 +308,38 @@ public class Proto extends JFrame {
 		
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == print) {
-				currentClass.currentMethod().addCommand(new PresetValue("Print", 1));
+				currentClass.currentMethod().addCommand(new Command("Print", new TextValue(5)));
 				updateCommands();
 			}
 		}
 	}
 	
+}
+
+interface IValue {
+// 	public IValue getParent();
+}
+
+interface IContainer {
+	public void changeValue(Component oldComponent, Component newComponent);
 	
 }
 
-abstract class Value extends JPanel implements MouseListener {
+interface IPrimitive {
+	
+	
+}
 
-// 	JPanel panel;
+interface IBlock {
 	
-	public Value() {
-		super();
-		this.setBorder(BorderFactory.createLineBorder(Color.black));
-		this.setBackground(Color.white);
-		this.addMouseListener(this);
+}
+
+class ScriptMouseListener implements MouseListener {
+	
+	public ScriptMouseListener() {
 	}
 	
-	public JPanel getPanel() {
-		return this;
-	}
-	
-	public void changeValue(Value newValue) {
-		Value parent = (Value) this.getParent();
-		parent.changeValue(newValue);
-		parent.add(newValue.getPanel());
-	}
-	
-	class ValuePopupMenu extends JPopupMenu implements ActionListener {
+	class ScriptPopupMenu extends JPopupMenu implements ActionListener {
 		
 		JMenu
 // 			change = new JMenu("Change to.."),
@@ -326,7 +349,7 @@ abstract class Value extends JPanel implements MouseListener {
 			combined = new JMenuItem("Combined"),
 			method = new JMenuItem("Method");
 		
-		public ValuePopupMenu() {
+		public ScriptPopupMenu() {
 			super();
 			
 // 			this.add(change);
@@ -341,31 +364,45 @@ abstract class Value extends JPanel implements MouseListener {
 		}
 		
 		public void actionPerformed(ActionEvent e) {
-			
+			Component newComponent = null;
 			if (e.getSource() == text) {
-				System.out.println("Ayo");
-				JMenuItem item = (JMenuItem) e.getSource();
-				JPopupMenu menu = (JPopupMenu) item.getParent();
-				System.out.println("Don't");
-				Value invoker = (Value) menu.getInvoker();
-				invoker.changeValue(new MethodValue("aaa", new TextValue("Se2")));
-				System.out.println("Stop");
-				System.out.println("Aya");
+				newComponent = new TextValue(10);
 			} else if (e.getSource() == combined) {
-				
+				newComponent = new CombinedValue(new TextValue("Left"), new TextValue("Right"));
 			} else if (e.getSource() == method) {
-				
+				newComponent = new MethodValue("Method3", 3);
+			}
+			JMenuItem item = (JMenuItem) e.getSource();
+			JPopupMenu menu = (JPopupMenu) item.getParent();
+			Component invoker = menu.getInvoker();
+			
+			if (!(invoker instanceof IPrimitive)) {
+				invoker = invoker.getParent();
+			}
+			
+			Component parent = (Component) invoker.getParent();
+			IContainer container = (IContainer) parent;
+			
+			System.out.println("Invoker: " + invoker);
+			
+			container.changeValue(invoker, newComponent);
+			System.out.println("Parent: " + parent);
+			
+			while (!(parent instanceof Command)) {
+				parent.revalidate();
+				parent.repaint();
+				parent = parent.getParent();
 			}
 		}
 	}
 	
 	public void mouseClicked(MouseEvent e) {
 		if (SwingUtilities.isRightMouseButton(e)) {
-			ValuePopupMenu valuePopupMenu = new ValuePopupMenu();
-			valuePopupMenu.show(e.getComponent(), e.getX(), e.getY());
+			ScriptPopupMenu scriptPopupMenu = new ScriptPopupMenu();
+			scriptPopupMenu.show(e.getComponent(), e.getX(), e.getY());
 		}
 	}
-		
+	
 	public void mouseExited(MouseEvent e) {
 	}
 	
@@ -379,24 +416,55 @@ abstract class Value extends JPanel implements MouseListener {
 	}
 }
 
-class PresetValue extends Value {
+// Container
+class MethodValue extends JPanel implements IValue, IContainer {
 	JLabel label;
-	LinkedList<Value> params;
+	LinkedList<Component> params;
+	ScriptMouseListener mouseListener = new ScriptMouseListener();
 	
-	public PresetValue(String value, int numParams) {
-		label = new JLabel(value);
-		params = new LinkedList<Value>();
+	public MethodValue(String name, int numParams) {
+		super();
+		label = new JLabel(name);
+		label.addMouseListener(mouseListener);
+		params = new LinkedList<Component>();
 		this.add(label);
 		
 		for (int i = 0; i < numParams; i++) {
 			TextValue temp = new TextValue("");
+			temp.addMouseListener(mouseListener);
 			params.add(temp);
-			this.add(temp.getPanel());
+			this.add(temp);
 		}
+		
+		this.repaint();
+		this.validate();
 	}
+	
+// 	public void changeValue(IValue oldValue, IValue newValue) {
+	public void changeValue(Component oldComponent, Component newComponent) {
+		int pos = params.indexOf(oldComponent);
+		if (pos == -1) {
+			return;
+		}
+		
+		params.set(pos, newComponent);
+		this.remove(oldComponent);
+		this.add(newComponent, pos + 1); // #Test
+		
+		this.repaint();
+		this.validate();
+		this.getParent().repaint();
+		this.getParent().validate();
+		return;
+	}
+	/*
+	public IValue getParent() {
+		return null;
+	}*/
 }
 
-class CombinedValue extends Value {
+// Container
+class CombinedValue extends JPanel implements IValue, IContainer {
 	static final String[] OPERANDS = new String[] {
 		"+",
 		"-",
@@ -404,46 +472,61 @@ class CombinedValue extends Value {
 		"/",
 		"%",
 	};
-	Value left;
-	Value right;
+	Component left;
+	Component right;
 	JComboBox middle;
 	JLabel label;
 	
-	public CombinedValue(Value left, Value right) {
+	public CombinedValue(Component left, Component right) {
 		super();
 		this.left = left;
 		this.right = right;
 		this.middle = new JComboBox<String>(OPERANDS);
-		this.add(left.getPanel());
+		this.middle.addMouseListener(new ScriptMouseListener());
+		this.add(left);
 		this.add(middle);
-		this.add(right.getPanel());
+		this.add(right);
 	}
 	
-	public void setLeft(Value newValue) {
-		this.left = newValue;
-	}
-	
-	public void setRight(Value newValue) {
-		this.right = newValue;
+	public void changeValue(Component oldComponent, Component newComponent) {
+		if (oldComponent == left) {
+			left = newComponent;
+			this.remove(oldComponent);
+			this.add(newComponent, 0);
+			return;
+		}
+		if (oldComponent == right) {
+			this.remove(oldComponent);
+			this.add(newComponent, 2);
+			right = newComponent;
+			return;
+		}
+		this.validate();
+		this.repaint();
+		this.getParent().validate();
+		this.getParent().repaint();
 	}
 }
 
-class TextValue extends Value {
-	JTextField textField;
+// Primitive
+class TextValue extends JTextField implements IValue, IPrimitive {
 	MyDocumentListener documentListener = new MyDocumentListener();
 	
-	/*
-	public TextValue() {
-		super();
-		TextValue("");
-	}*/
-	
 	public TextValue(String value) {
-		super();
-		this.textField = new JTextField(value);
-		this.textField.getDocument().putProperty("parent", this.textField);
-		this.textField.getDocument().addDocumentListener(documentListener);
-		this.add(textField);
+		super(value);
+		this.addMouseListener(new ScriptMouseListener());
+		this.getDocument().putProperty("parent", this);
+		this.getDocument().addDocumentListener(documentListener);
+// 		this.setMinimumSize(new Dimension(200,200));
+// 		this.setPreferredSize(new Dimension(200,200));
+	}
+	public TextValue(int columns) {
+		super(columns);
+		this.addMouseListener(new ScriptMouseListener());
+		this.getDocument().putProperty("parent", this);
+		this.getDocument().addDocumentListener(documentListener);
+// 		this.setMinimumSize(new Dimension(200,200));
+// 		this.setPreferredSize(new Dimension(200,200));
 	}
 	
 	class MyDocumentListener implements DocumentListener {
@@ -452,7 +535,9 @@ class TextValue extends Value {
 		
 		public void adjust(DocumentEvent e) {
 			JTextField textField = (JTextField) e.getDocument().getProperty("parent");
+			textField.setMinimumSize(new Dimension(100,100));
 			textField.getParent().getParent().validate();
+			textField.getParent().getParent().getParent().validate();
 		}
 		
 		public void changedUpdate(DocumentEvent e) {
@@ -469,18 +554,15 @@ class TextValue extends Value {
 	}
 }
 
-class MethodValue extends Value {
-	JTextField method;
-	Value param;
+class VariableValue extends JComboBox implements IValue, IPrimitive{
 	
-	public MethodValue(String method, Value param) {
+// 	HashMap<>classVariables
+	
+	public VariableValue() {
 		super();
-		this.method = new JTextField(method);
-		this.param = param;
-		this.add(this.method);
-		this.add(this.param.getPanel());
 	}
 }
+
 /*
 class Conditional extends Value {
 	
@@ -488,26 +570,31 @@ class Conditional extends Value {
 
 /** Represents one line of code in a method.
 */
-class Command extends JPanel {
-	Value value;
-	JPanel panel;
+class Command extends JPanel implements IContainer {
+	JLabel label;
+	IValue value;
 	
-	public Command(Value value) {
-		
+	public Command(String name, IValue value) {
 		// Add components
-		panel = new JPanel();
-		panel.setBorder(BorderFactory.createLineBorder(Color.black));
-		panel.setBackground(Color.lightGray);
+		super();
+		this.setBorder(BorderFactory.createLineBorder(Color.black));
+		this.setBackground(Color.lightGray);
+		this.setMaximumSize(new Dimension(2000, 46));
+// 		this.setPreferredSize(new Dimension(200, 100));
+// 		this.setAlignmentX(LEFT_ALIGNMENT);
+		this.label = new JLabel(name);
 		this.value = value;
+		this.add(label);
+		this.add((Component) value);
 	}
 	
+	public void changeValue(Component oldComponent, Component newComponent) {
+		this.remove(oldComponent);
+		this.add(newComponent);
+		this.validate();
+		this.repaint();
+	}
 }
-
-/** Represents one line of code in a method.
-*/
-// class Wrapping extends Command {
-// 	
-// }
 
 /** Represents classes
 */
@@ -547,16 +634,7 @@ class MyClass {
 	}
 	
 	public String toString() {
-		String result = this.name;
-		/* For testing
-		Iterator<MyMethod> methodIterator = methods.iterator();
-			while (methodIterator.hasNext()) {
-				MyMethod next = methodIterator.next();
-				result = result + next.toString();
-			}
-		/**/
-		return result;
-		
+		return this.name;
 	}
 	
 	public MyMethod currentMethod() {
@@ -566,6 +644,11 @@ class MyClass {
 			methodIterator.next();
 		}
 		return methodIterator.next();
+	}
+	
+	public void removeMethod(MyMethod method) {
+		methods.remove(method);
+		tabbedPane.remove(method);
 	}
 }
 
@@ -587,22 +670,40 @@ class Argument {
 	}
 }
 
+class Variable {
+	MyClass type;
+	String name;
+	HashSet<JComboBox> uses;
+	
+	public Variable(MyClass type, String name) {
+		this.type = type;
+		this.name = name;
+		uses = new HashSet<JComboBox>();
+	}
+	
+	public String toString() {
+		return name;
+	}
+}
+
 /** Represents methods in a class
 */
-class MyMethod extends JScrollPane implements Comparable, MouseListener {
+class MyMethod extends JScrollPane implements Comparable, MouseListener, MouseMotionListener {
 	String name;
 	MyClass returnType;
-	LinkedList<Value> script;
+	LinkedList<Command> script;
 	LinkedList<Argument> arguments;
 	JPanel panel;
 	BoxLayout boxLayout;
+	HashMap<Integer, Variable> variables;
+	HashMap<Variable, Integer> varIDs;
 	
 	public MyMethod(String name, MyClass returnType) {
 		super();
 		this.setName(name);
 		this.name = name;
 		this.returnType = returnType;
-		script = new LinkedList<Value>();
+		script = new LinkedList<Command>();
 		panel = new JPanel();
 		boxLayout = new BoxLayout(panel, BoxLayout.Y_AXIS);
 		panel.setLayout(boxLayout);
@@ -628,17 +729,17 @@ class MyMethod extends JScrollPane implements Comparable, MouseListener {
 		return true;
 	}
 	
-	public void addCommand(Value command) {
+	public void addCommand(Command command) {
 		addCommand(command, script.size());
 	}
 	
-	public void addCommand(Value command, int index) {
+	public void addCommand(Command command, int index) {
 		command.addMouseListener(this);
 		script.add(index, command);
 		panel.add(command);
 	}
 	
-	public void removeCommand(Value command) {
+	public void removeCommand(Command command) {
 		System.out.println(script.remove(command));
 		panel.remove(command);
 		panel.validate();
@@ -666,8 +767,7 @@ class MyMethod extends JScrollPane implements Comparable, MouseListener {
 	
 	public void mouseClicked(MouseEvent e) {
 		if (SwingUtilities.isMiddleMouseButton(e)) {
-			System.out.println("Oof");
-			Value command = (Value) e.getSource();
+			Command command = (Command) e.getSource();
 			removeCommand(command);
 		}
 	}
@@ -682,6 +782,12 @@ class MyMethod extends JScrollPane implements Comparable, MouseListener {
 	}
 	
 	public void mousePressed(MouseEvent e) {
+	}
+	
+	public void mouseDragged(MouseEvent e) {
+	}
+	
+	public void mouseMoved(MouseEvent e) {
 	}
 }
 
@@ -751,3 +857,84 @@ class Classes extends JScrollPane {
 		return childNode;
 	}
 }
+
+//////////// ARCHIVE
+
+// abstract class Value extends JPanel implements MouseListener {
+// 	
+// 	public Value() {
+// 		super();
+// 		this.addMouseListener(this);
+// 		this.setBorder(new EmptyBorder(0, 0, 0, 0));
+// 		/*
+// 		this.setBorder(BorderFactory.createLineBorder(Color.black));
+// 		this.setBackground(Color.white);
+// 		this.addMouseListener(this);
+// 		this.setMaximumSize(new Dimension(40, 20);
+// 		this.setAlignmentX(Component.LEFT_ALIGNMENT);*/
+// 	}
+// 	
+// 	public abstract boolean modifyValue(Value oldValue, Value newValue);
+// 	
+// 	class ValuePopupMenu extends JPopupMenu implements ActionListener {
+// 		
+// 		JMenu
+// // 			change = new JMenu("Change to.."),
+// 			preset = new JMenu("Preset");
+// 		JMenuItem
+// 			text = new JMenuItem("Text"),
+// 			combined = new JMenuItem("Combined"),
+// 			method = new JMenuItem("Method");
+// 		
+// 		public ValuePopupMenu() {
+// 			super();
+// 			
+// // 			this.add(change);
+// // 			change.add(preset);
+// 			this.add(text);
+// 			this.add(combined);
+// 			this.add(method);
+// 			
+// 			text.addActionListener(this);
+// 			combined.addActionListener(this);
+// 			method.addActionListener(this);
+// 		}
+// 		
+// 		public void actionPerformed(ActionEvent e) {
+// 			
+// 			if (e.getSource() == text) {
+// 				JMenuItem item = (JMenuItem) e.getSource();
+// 				JPopupMenu menu = (JPopupMenu) item.getParent();
+// 				Value invoker = (Value) menu.getInvoker().getParent();
+// // 				System.out.println("Invoker: " + invoker);
+// 				invoker.modifyValue(invoker, new MethodValue("Aya", 1));
+// 				System.out.println("Heh");
+// 				System.out.println("Parent: " + invoker.getParent());
+// 				// Change the value here
+// 				// invoker.changeValue(new MethodValue("aaa", new TextValue("Se2")));
+// 			} else if (e.getSource() == combined) {
+// 			} else if (e.getSource() == method) {
+// 				
+// 			}
+// 		}
+// 	}
+// 	
+// 	public void mouseClicked(MouseEvent e) {
+// 		if (SwingUtilities.isRightMouseButton(e)) {
+// 			ValuePopupMenu valuePopupMenu = new ValuePopupMenu();
+// 			valuePopupMenu.show(e.getComponent(), e.getX(), e.getY());
+// 		}
+// 	}
+// 		
+// 	public void mouseExited(MouseEvent e) {
+// 	}
+// 	
+// 	public void mouseEntered(MouseEvent e) {
+// 	}
+// 	
+// 	public void mouseReleased(MouseEvent e) {
+// 	}
+// 	
+// 	public void mousePressed(MouseEvent e) {
+// 	}
+// }
