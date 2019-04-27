@@ -1,3 +1,4 @@
+##### Sprint 1 #####
 Week 3
 	Tutorials
 	Trying out objects
@@ -5,12 +6,14 @@ Week 4
 	Adding elements
 	Figured out mouse tracking
 	Created split pane
+##### Sprint 2 #####
 Week 5
 	Created project backlog
 		Contains immediate small things to work on
 	Added menu bar
 	Added popup menu
 Week 6
+##### Sprint 3 #####
 	Added popup menu
 	Added removing classes
 	Separated classes
@@ -49,3 +52,47 @@ Week 8
 	Decided to use right click more
 		Right click to convert value stuff
 	Making methods into panels
+##### Sprint 4 #####
+Week 9
+Week 10
+##### Sprint 5 #####
+Holiday week 1
+Holiday week 2
+	Leaving value class for now, get functionality
+	Hopping over to BoxLayout for simplicity
+	Changed value class to extend panel
+		Maybe should extend component instead
+		Then we don't need to put things into panels
+		Empty panels?
+	Gridbag layout?
+	Need a layout that lets the things inside resize as they wish
+	Problem
+		Need to be able to invoke changeValue in any compound value
+			This means either extend common parent that has the method or use an interface and have them all implement them
+			Common parent will be JPanel which will be fine because all compound values will be isolated in a panel
+		Need to be able to treat ANY value as a generic value (regardless of type)
+			This means need to extend common component parent
+			But can't treat the class as the component because it needs to be a different component depending on the type of value (text, etc)
+			Can't get parent somehow?
+		Solutions
+			Have all compound values extend a single class that extends JPanel
+			Have all primitive values implement a class
+			Both compounds primitives call the popup
+			Only compound will change the children
+			Primitives will change by calling the parent (a panel which is the parent)
+##### Sprint 6 #####
+Week 1
+	Need to accommodate flexibility in allowing preset functions that return values while still providing assistance
+	
+Week 2
+##### Sprint 7 #####
+Week 3
+	
+	
+	
+###
+Product backlog useful for continuing work
+	Compared to adding todo on code
+	
+	
+	After discover greenfoot, it was essential to create obvious distictions between the two programs as to avoid just makign the same shit again
