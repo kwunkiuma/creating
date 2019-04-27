@@ -18,7 +18,7 @@ import javax.swing.tree.*;
 	@serial (or @serialField or @serialData)
 	@deprecated (see How and When To Deprecate APIs)
 */
-public class Program extends JFrame {
+public class Proto extends JFrame {
 	JFrame
 		parent;
 	JMenuBar
@@ -32,7 +32,6 @@ public class Program extends JFrame {
 		fileOpen,
 		classNew,
 		classRemove,
-		classExport,
 		methodNew,
 		methodRemove;
 	JSplitPane
@@ -41,24 +40,20 @@ public class Program extends JFrame {
 		methodPropertySplit,
 		centreSplit;
 	JScrollPane
-		commandsScrollPane,
-		textAreaScrollPane;
+		commandsScrollPane;
 	JPanel
 		classPanel,
 		methodProperties = new JPanel(),
 		commands,
-		addCommandsPanel,
-		textAreaPanel;
-	JTextArea
-		textArea;
-	JLabel label = new JLabel("ssss");
+		addCommandsPanel;
+	JLabel label = new JLabel("");
 	DefaultMutableTreeNode top = new DefaultMutableTreeNode("Top of tree");
 	Classes classes;
 	MyClass currentClass;
 	
 	/** Creates table elements and layout.
 	*/
-	public Program() {
+	public Proto() {
 		initMenuBar();
 		
 		// Initialise tree panel
@@ -83,7 +78,7 @@ public class Program extends JFrame {
 		// Configure commands
 		commandsScrollPane = new JScrollPane(commands, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		
-		/* Test // Comment and uncomment this to add sample data
+// 		/* Test // Comment and uncomment this to add sample data
 		MyMethod a = new MyMethod("methodA", null);
 		MyMethod b = new MyMethod("methodB", null);
 		MyMethod c = new MyMethod("methodC", null);
@@ -103,14 +98,10 @@ public class Program extends JFrame {
 		classSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, classPropertiesSplit, commandsScrollPane);
 		classSplit.setResizeWeight(0);
 		
-		textArea = new JTextArea();
-		textAreaScrollPane = new JScrollPane(textArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		textAreaScrollPane.setPreferredSize(new Dimension(600, 500));
+		methodPropertySplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true, methodProperties, label);
 		
-// 		methodPropertySplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true, textAreaScrollPane, methodProperties);
-		
-// 		methodPropertySplit.setResizeWeight(0.5);
-		centreSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, classSplit, textAreaScrollPane);
+		methodPropertySplit.setResizeWeight(0.5);
+		centreSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true, classSplit, methodPropertySplit);
 		centreSplit.setResizeWeight(1);
 		
 		add(centreSplit);
@@ -136,16 +127,13 @@ public class Program extends JFrame {
 		classMenu = new JMenu("Class");
 		classNew = new JMenuItem("New");
 		classRemove = new JMenuItem("Remove");
-		classExport = new JMenuItem("Export");
 		
 		classNew.addActionListener(menuBarListener);
 		classRemove.addActionListener(menuBarListener);
-		classExport.addActionListener(menuBarListener);
 		
 		menuBar.add(classMenu);
 		classMenu.add(classNew);
 		classMenu.add(classRemove);
-		classMenu.add(classExport);
 		
 		// Method menu
 		methodMenu = new JMenu("Method");
@@ -172,7 +160,7 @@ public class Program extends JFrame {
 	/** Main method.
 	*/
 	public static void main(String[] args) {
-		Program window = new Program();
+		Proto window = new Proto();
 		window.parent = window;
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setSize(1280, 720);
@@ -190,10 +178,6 @@ public class Program extends JFrame {
 					return;
 				}
 				classes.addObject(new MyClass(name, null));
-			}
-			if (e.getSource() == classExport) {
-				textArea.setText(currentClass.getString(0));
-				
 			}
 			if (e.getSource() == methodNew) {
 				String name = JOptionPane.showInputDialog(parent, "Enter a name for your new method:", "New method..", JOptionPane.QUESTION_MESSAGE);
@@ -217,6 +201,17 @@ public class Program extends JFrame {
 			else {
 				// TEST HERE
 			}
+		}
+	}
+	
+	/** Listener for movement within code window
+	*/
+	class BoxMotionListener implements MouseMotionListener {
+		public void mouseDragged(MouseEvent e) {
+			System.out.println("Drag");
+		}
+		
+		public void mouseMoved(MouseEvent e) {
 		}
 	}
 	
@@ -297,165 +292,38 @@ public class Program extends JFrame {
 		}
 	}
 	
-	class AddCommandsScrollPane extends JTabbedPane implements ActionListener {
-		
-		String[] control = new String[] {
-			"For",
-			"If",
-			"Else",
-			"Else if",
-			"End"
-		};
-		
-		String[] action = new String[] {
-			"Print",
-			"Method"
-		};
-		
-		String[] variable = new String[] {
-			"Assignment",
-			"Return",
-		};
-		/*
+	class AddCommandsScrollPane extends JScrollPane implements ActionListener {
 		String[] buttons = new String[] {
 			"Print",
 			"Method",
-			"Assignment",
-			"Return",
-			"If",
-			"Else",
-			"Else if",
-			"End",
-			"For"
-		};*/
-		JPanel
-			controlPanel,
-			variablePanel,
-			actionPanel;
+			"Assignment"
+		};
+		JPanel panel;
 		
 		public AddCommandsScrollPane() {
-			this.setPreferredSize(new Dimension(200,400));
-			controlPanel = new JPanel();
-			for (int i = 0; i < control.length; i++) {
-				JButton button = new JButton(control[i]);
+			panel = new JPanel();
+			for (int i = 0; i < buttons.length; i++) {
+				JButton button = new JButton(buttons[i]);
 				button.addActionListener(this);
-				controlPanel.add(button);
+				panel.add(button);
 			}
 			
-			variablePanel = new JPanel();
-			for (int i = 0; i < variable.length; i++) {
-				JButton button = new JButton(variable[i]);
-				button.addActionListener(this);
-				variablePanel.add(button);
-			}
-			
-			actionPanel = new JPanel();
-			for (int i = 0; i < action.length; i++) {
-				JButton button = new JButton(action[i]);
-				button.addActionListener(this);
-				actionPanel.add(button);
-			}
-			
-			this.addTab("Control", controlPanel);
-			this.addTab("Variable", variablePanel);
-			this.addTab("Action", actionPanel);
+			this.setViewportView(panel);
 		}
 		
 		public void actionPerformed(ActionEvent e) {
 			JButton b = (JButton) e.getSource();
-			Component[] components;
-			
+			System.out.println("SSSSaaaaaaaaaSSSSSSS");
 			if (b.getText().equals("Print")) {
-				components = new Component[] {
-					new JLabel("Print"),
-					new TextValue("Message")
-				};
-				components[1].requestFocusInWindow();
-				currentClass.currentMethod().addCommand(new Command(components, "Print"));
-				updateCommands();
-			}
-			
-			if (b.getText().equals("Method")) {
-				components = new Component[] {
-					new TextValue("MethodName"),
-					new TextValue("Parameters")
-				};
-				components[0].requestFocusInWindow();
-				currentClass.currentMethod().addCommand(new Command(components, "Print"));
-				updateCommands();
-			}
-			
-			if (b.getText().equals("Return")) {
-				components = new Component[] {
-					new JLabel("Return"),
-					new TextValue("Value")
-				};
-				components[1].requestFocusInWindow();
-				currentClass.currentMethod().addCommand(new Command(components, "Return"));
+				currentClass.currentMethod().addCommand(new Command("Print", new TextValue(5)));
 				updateCommands();
 			}
 			
 			if (b.getText().equals("Assignment")) {
-				components = new Component[] {
-					new JLabel("Set"),
-					new TextValue("Variable"),
-					new JLabel("To"),
-					new TextValue("Value")
-				};
-				components[1].requestFocusInWindow();
-				currentClass.currentMethod().addCommand(new Command(components, "Assignment"));
+				System.out.println("SSSSSSSSSSS");
+				currentClass.currentMethod().addCommand(new Assignment(new TextValue("left"), new TextValue("right")));
 				updateCommands();
 			}
-			
-			if (b.getText().equals("If")) {
-				components = new Component[] {
-					new JLabel("If"),
-					new TextValue("Condition")
-				};
-				components[1].requestFocus();
-				currentClass.currentMethod().addCommand(new Command(components, "If"));
-				updateCommands();
-			}
-			
-			if (b.getText().equals("End")) {
-				components = new Component[] {
-					new JLabel("End")
-				};
-				currentClass.currentMethod().addCommand(new Command(components, "End"));
-				updateCommands();
-			}
-			
-			if (b.getText().equals("For")) {
-				components = new Component[] {
-					new JLabel("For"),
-					new TextValue("Initialise"),
-					new TextValue("Terminate"),
-					new TextValue("Increment"),
-				};
-				components[1].requestFocusInWindow();
-				currentClass.currentMethod().addCommand(new Command(components, "For"));
-				updateCommands();
-			}
-			
-			if (b.getText().equals("Else")) {
-				components = new Component[] {
-					new JLabel("Else")
-				};
-				currentClass.currentMethod().addCommand(new Command(components, "Else"));
-				updateCommands();
-			}
-			
-			if (b.getText().equals("Else if")) {
-				components = new Component[] {
-					new JLabel("Else if"),
-					new TextValue("Condition")
-				};
-				components[1].requestFocusInWindow();
-				currentClass.currentMethod().addCommand(new Command(components, "Elseif"));
-				updateCommands();
-			}
-			
-			
 		}
 	}
 	
@@ -465,7 +333,6 @@ interface IValue {
 // 	public IValue getParent();
 }
 
-// Interface for any class that containes other components
 interface IContainer {
 	public void changeValue(Component oldComponent, Component newComponent);
 	
@@ -478,10 +345,6 @@ interface IPrimitive {
 
 interface IBlock {
 	
-}
-
-interface IScript {
-	public String getString(int tabs);
 }
 
 class ScriptMouseListener implements MouseListener {
@@ -516,11 +379,11 @@ class ScriptMouseListener implements MouseListener {
 		public void actionPerformed(ActionEvent e) {
 			Component newComponent = null;
 			if (e.getSource() == text) {
-				newComponent = new TextValue("Hello!");
+				newComponent = new TextValue(10);
 			} else if (e.getSource() == combined) {
 				newComponent = new CombinedValue(new TextValue("Left"), new TextValue("Right"));
 			} else if (e.getSource() == method) {
-				newComponent = new MethodValue("Method3", 2);
+				newComponent = new MethodValue("Method3", 3);
 			}
 			JMenuItem item = (JMenuItem) e.getSource();
 			JPopupMenu menu = (JPopupMenu) item.getParent();
@@ -567,7 +430,7 @@ class ScriptMouseListener implements MouseListener {
 }
 
 // Container
-class MethodValue extends JPanel implements IValue, IContainer, IScript {
+class MethodValue extends JPanel implements IValue, IContainer {
 	JLabel label;
 	LinkedList<Component> params;
 	ScriptMouseListener mouseListener = new ScriptMouseListener();
@@ -590,6 +453,7 @@ class MethodValue extends JPanel implements IValue, IContainer, IScript {
 		this.validate();
 	}
 	
+// 	public void changeValue(IValue oldValue, IValue newValue) {
 	public void changeValue(Component oldComponent, Component newComponent) {
 		int pos = params.indexOf(oldComponent);
 		if (pos == -1) {
@@ -606,23 +470,6 @@ class MethodValue extends JPanel implements IValue, IContainer, IScript {
 		this.getParent().validate();
 		return;
 	}
-	
-	public String getString(int tabs) {
-		String result = new String("");
-		result += label.getText();
-		
-		for (Iterator iterator = params.iterator(); iterator.hasNext(); ) {
-			IScript element = (IScript) iterator.next();
-			result += element.getString(tabs);
-			
-			if (iterator.hasNext()) {
-				result += ", ";
-			}
-		}
-		
-		return result;
-	}
-	
 	/*
 	public IValue getParent() {
 		return null;
@@ -630,7 +477,7 @@ class MethodValue extends JPanel implements IValue, IContainer, IScript {
 }
 
 // Container
-class CombinedValue extends JPanel implements IValue, IContainer, IScript {
+class CombinedValue extends JPanel implements IValue, IContainer {
 	static final String[] OPERANDS = new String[] {
 		"+",
 		"-",
@@ -672,25 +519,10 @@ class CombinedValue extends JPanel implements IValue, IContainer, IScript {
 		this.getParent().validate();
 		this.getParent().repaint();
 	}
-	
-	public String getString(int tabs) {
-		String result = new String("");
-		result += "(";
-		
-		IScript leftScript = (IScript) left;
-		IScript rightScript = (IScript) right;
-		String operator = (String) middle.getSelectedItem();
-		
-		result += leftScript.getString(tabs);
-		result += operator;
-		result += leftScript.getString(tabs);
-		result += ")";
-		return result;
-	}
 }
 
 // Primitive
-class TextValue extends JTextField implements IValue, IPrimitive, IScript {
+class TextValue extends JTextField implements IValue, IPrimitive {
 	MyDocumentListener documentListener = new MyDocumentListener();
 	
 	public TextValue(String value) {
@@ -733,17 +565,9 @@ class TextValue extends JTextField implements IValue, IPrimitive, IScript {
 			adjust(e);
 		}
 	}
-	
-	public String getString(int tabs) {
-		String result = new String("");
-		result += this.getText();
-		
-		return result;
-	}
 }
 
-// TODO
-class VariableValue extends JComboBox implements IValue, IPrimitive {
+class VariableValue extends JComboBox implements IValue, IPrimitive{
 	
 // 	HashMap<>classVariables
 	
@@ -759,11 +583,10 @@ class Conditional extends Value {
 
 /** Represents one line of code in a method.
 */
-class Command extends JPanel implements IContainer, IScript {
-	LinkedList<Component> components;
-	String type;
-	static int moreTabs = 0;
-	/*
+class Command extends JPanel implements IContainer {
+	JLabel label;
+	IValue value;
+	
 	public Command(String name, IValue value) {
 		// Add components
 		super();
@@ -776,127 +599,20 @@ class Command extends JPanel implements IContainer, IScript {
 		this.value = value;
 		this.add(label);
 		this.add((Component) value);
-	}*/
-	
-	public Command(Component[] components, String type) {
-		super();
-		this.setBorder(BorderFactory.createLineBorder(Color.black));
-		this.setBackground(Color.lightGray);
-// 		this.setMaximumSize(new Dimension(2000, 46));
-		if (type.equals("End") || type.equals("Else")) {
-			this.setPreferredSize(new Dimension(50,31));
-		}/*
-		if (type.equals("Elseif") {
-			this.setPreferredSize(new Dimension(,31));
-		}*/
-		this.type = type;
-		this.components = new LinkedList<Component>();
-		for (int i = 0; i < components.length; i++) {
-			this.components.add(components[i]);
-			this.add(components[i]);
-		}
-	}
-	
-	public String getType() {
-		return type;
 	}
 	
 	public void changeValue(Component oldComponent, Component newComponent) {
-		int pos = components.indexOf(oldComponent);
 		this.remove(oldComponent);
-		this.add(newComponent, pos);
-		components.remove(oldComponent);
-		components.add(pos, newComponent);
+		this.add(newComponent);
 		this.validate();
 		this.repaint();
-	}
-	
-	public String getString(int tabs) {
-		IScript element;
-		
-		
-		if (type.equals("End")) {
-			moreTabs -= 1;
-		}
-		
-		String result = new String("");
-		for (int i = 0; i < tabs + moreTabs; i++) {
-			result += "\t";
-		}
-		
-		if (type.equals("Print")) {
-			result += "System.out.println(";
-			element = (IScript) components.get(1);
-			result += element.getString(tabs);
-			result += ")";
-			result += ";";
-		}
-		
-		if (type.equals("Assignment")) {
-			element = (IScript) components.get(1);
-			result += element.getString(tabs);
-			result += " = ";
-			element = (IScript) components.get(3);
-			result += element.getString(tabs);
-			result += ";";
-		}
-		
-		if (type.equals("Return")) {
-			result += "return ";
-			element = (IScript) components.get(1);
-			result += element.getString(tabs);
-			result += ";";
-		}
-		
-		if (type.equals("If")) {
-			result += "if (";
-			element = (IScript) components.get(1);
-			result += element.getString(tabs);
-			result += ") {";
-			moreTabs += 1;
-		}
-		
-		if (type.equals("End")) {
-			result += "}";
-		}
-		
-		if (type.equals("For")) {
-			result += "for (";
-			element = (IScript) components.get(1);
-			result += element.getString(tabs);
-			result += "; ";
-			element = (IScript) components.get(2);
-			result += element.getString(tabs);
-			result += "; ";
-			element = (IScript) components.get(3);
-			result += element.getString(tabs);
-			result += ")";
-			moreTabs += 1;
-		}
-		
-		if (type.equals("Else")) {
-			result += "} else {";
-			moreTabs += 1;
-		}
-		
-		if (type.equals("Elseif")) {
-			result += "} else if (";
-			element = (IScript) components.get(1);
-			result += element.getString(tabs);
-			result += ") {";
-			moreTabs += 1;
-		}
-		
-		
-		result += "\n";
-		return result;
 	}
 }
 
 class Assignment extends JPanel implements IContainer {
-	IValue left, right;
+	IValue left right;
 	
-	public Assignment(IValue left, IValue right) {
+	public Command(IValue left, IValue right) {
 		// Add components
 		super();
 		this.setBorder(BorderFactory.createLineBorder(Color.black));
@@ -974,32 +690,6 @@ class MyClass {
 		methods.remove(method);
 		tabbedPane.remove(method);
 	}
-	
-	public String getString(int tabs) {
-		
-		String result = new String("");
-		for (int i = 0; i < tabs; i++) {
-			result += "\t";
-		}
-		result += "public class ";
-		result += name;
-		result += " {";
-		tabs += 1;
-		for (Iterator<MyMethod> iterator = methods.iterator(); iterator.hasNext(); ) {
-			result += "\n";
-			MyMethod method = iterator.next();
-			result += method.getString(tabs);
-			
-			result += "\n";
-		}
-		tabs -= 1;
-		for (int i = 0; i < tabs; i++) {
-			result += "\t";
-		}
-		result += "}";
-		
-		return result;
-	}
 }
 
 /** Represents arguments to feed into commands.
@@ -1017,15 +707,6 @@ class Argument {
 	
 	public String toString() {
 		return name;
-	}
-	
-	public String getString(int tabs) {
-		String result = new String("");
-		result += type.name;
-		result += " ";
-		result += name;
-		
-		return result;
 	}
 }
 
@@ -1048,47 +729,24 @@ class Variable {
 /** Represents methods in a class
 */
 class MyMethod extends JScrollPane implements Comparable, MouseListener, MouseMotionListener {
-	static int padding = 3;
-	String protection = "public";
 	String name;
 	MyClass returnType;
-	LinkedList<Component> script;
+	LinkedList<IContainer> script;
 	LinkedList<Argument> arguments;
 	JPanel panel;
 	BoxLayout boxLayout;
-	SpringLayout layout;
 	HashMap<Integer, Variable> variables;
 	HashMap<Variable, Integer> varIDs;
-	JSeparator sp;
-	int pos = 0;
-	Component dragTarget;
-	static String[] indentsArray = new String[] {
-		"If",
-		"For",
-		"While",
-		"Else",
-		"Elseif"
-	};
-	static HashSet<String> indents = new HashSet<String>(Arrays.asList(indentsArray));
-// 	Component 
 	
 	public MyMethod(String name, MyClass returnType) {
 		super();
 		this.setName(name);
 		this.name = name;
 		this.returnType = returnType;
-		script = new LinkedList<Component>();
+		script = new LinkedList<IContainer>();
 		panel = new JPanel();
-// 		panel.addMouseListener();
 		boxLayout = new BoxLayout(panel, BoxLayout.Y_AXIS);
 		panel.setLayout(boxLayout);
-		layout = new SpringLayout();
-		panel.setLayout(layout);
-		sp = new JSeparator();
-		sp.setPreferredSize(new Dimension(200, 5));
-		sp.setBackground(Color.blue);
-// 		sp.setVisible(false);
-		panel.add(sp);
 		this.setViewportView(panel);
 	}
 	
@@ -1111,90 +769,21 @@ class MyMethod extends JScrollPane implements Comparable, MouseListener, MouseMo
 		return true;
 	}
 	
-	public void addCommand(Component component) {
-		addCommand(component, pos);
-		pos = pos + 1;
-		putSp(pos);
+	public void addCommand(IContainer container) {
+		addCommand(container, script.size());
 	}
 	
-	public void addCommand(Component component, int index) {
-		if (component.getMouseListeners().length == 0) {
-			component.addMouseListener(this);
-		}
-		if (component.getMouseMotionListeners().length == 0) {
-			component.addMouseMotionListener(this);
-		}
-		System.out.println(index);
-		if (index != 0) {
-			Component previous = script.get(index - 1);
-			
-			setupLayout(previous, component);
-			
-		} else {
-			layout.putConstraint(SpringLayout.NORTH, component, padding, SpringLayout.NORTH, panel);
-		}
-		
-		if (index != script.size()) {
-			Component next = script.get(index);
-			setupLayout(component, next);
-		}
-		script.add(index, component);
-		
-		if (!panel.isAncestorOf(component))
-			panel.add(component);
-		panel.repaint();
-		panel.revalidate();
+	public void addCommand(IContainer container, int index) {
+		command.addMouseListener(this);
+		script.add(index, container);
+		panel.add(container);
 	}
 	
-	public void setupLayout(Component above, Component below) {
-			int indent = 0;
-			
-			Command command = (Command) above;
-			if (indents.contains(command.type)) {
-				indent += 20;
-			}
-			
-			command = (Command) below;
-			if (command.type.equals("End") || command.type.equals("Else") || command.type.equals("Elseif")) {
-				indent -= 20;
-			}
-			
-			layout.putConstraint(SpringLayout.NORTH, below, padding, SpringLayout.SOUTH, above);
-			layout.putConstraint(SpringLayout.WEST, below, indent, SpringLayout.WEST, above);
-	}
-	
-	public void removeCommand(Component component) {
-		int index = script.indexOf(component);
-		
-		
-		if (index != script.size() - 1) { // Modify layout if not last command
-			Component next = script.get(index + 1);
-			if (index == 0) {
-				layout.putConstraint(SpringLayout.NORTH, next, padding, SpringLayout.NORTH, panel);
-				layout.putConstraint(SpringLayout.WEST, next, 0, SpringLayout.WEST, panel);
-			} else {
-				Component previous = script.get(index - 1);
-				setupLayout(previous, next);
-			}
-		}
-		
-		script.remove(component);
-		panel.remove(component);
-		if (pos > index) {
-			pos -= 1;
-			putSp(pos);
-		}
+	public void removeCommand(IContainer container) {
+		System.out.println(script.remove(container));
+		panel.remove(container);
 		panel.validate();
-		this.repaint();
-	}
-	
-	public void moveCommand(Component component, int index) {
-		if (script.indexOf(component) < index) {
-			index -= 1;
-		}
-		removeCommand(component);
-		addCommand(component, index);
-		
+		this.repaint(); // 50L as param?
 	}
 	
 	// Changed to return itself instead of returning a panel
@@ -1217,6 +806,10 @@ class MyMethod extends JScrollPane implements Comparable, MouseListener, MouseMo
 	
 	
 	public void mouseClicked(MouseEvent e) {
+		if (SwingUtilities.isMiddleMouseButton(e)) {
+			IContainer container = (IContainer) e.getSource();
+			removeCommand(container);
+		}
 	}
 	
 	public void mouseExited(MouseEvent e) {
@@ -1226,111 +819,15 @@ class MyMethod extends JScrollPane implements Comparable, MouseListener, MouseMo
 	}
 	
 	public void mouseReleased(MouseEvent e) {
-		
-		if (!SwingUtilities.isLeftMouseButton(e)) {
-			return;
-		}
-		
-		int index = getIndex(e);
-		Component component = e.getComponent();
-		System.out.println(component);
-		if (index - 1 == script.indexOf(component)) {
-			System.out.println("ASDF");
-			return;
-		}
-		
-// 		sp.setVisible(false);
-		moveCommand(component, index);
-// 		int y = e.getY() + 
-
-		
-		
 	}
 	
 	public void mousePressed(MouseEvent e) {
-		Component component = (Component) e.getSource();
-		if (SwingUtilities.isLeftMouseButton(e)) {
-			int index = getIndex(e);
-			putSp(index);
-			pos = index;
-		}
-		if (SwingUtilities.isMiddleMouseButton(e)) {
-			removeCommand(component);
-		}
 	}
 	
 	public void mouseDragged(MouseEvent e) {
-		int index = getIndex(e);
-		putSp(index);
-// 		System.out.println(e.getPoint());
-// 		Component component = e.getComponent();
-// 		int x = component.getX();
-// 		int y = component.getY();
-// 		Point loc = e.getPoint();
-// 		loc.translate(x, y);
-// 		System.out.println(panel.getComponentAt(loc));
-	}
-	
-	public void putSp(int index) {
-		int length = 31 + padding;
-		layout.putConstraint(SpringLayout.NORTH, sp, length*index, SpringLayout.NORTH, panel);
-// 		sp.setVisible(true);
-		panel.revalidate();
-	}
-	
-	public void putSp(Component component) {
-		layout.putConstraint(SpringLayout.NORTH, sp, 1, SpringLayout.NORTH, panel);
-// 		sp.setVisible(true);
-		panel.revalidate();
-	}
-	
-	public int getIndex(MouseEvent e) {
-		Component component = e.getComponent();
-		int length = component.getHeight() + padding;
-		
-		int y = e.getY() + component.getY() + 15;
-		
-		int index = y / length;
-		if (index > script.size()) {
-			index = script.size();
-		}
-		
-		return index;
 	}
 	
 	public void mouseMoved(MouseEvent e) {
-	}
-	
-	public String getString(int tabs) {
-		String result = new String("");
-		for (int i = 0; i < tabs; i++) {
-			result += "\t";
-		}
-		result += protection;
-		result += " static ";
-		if (returnType == null) {
-			result += "void";
-		} else {
-			result += returnType.name;
-		}
-		result += " ";
-		result += name;
-		result += "(";
-		
-		result += ") {\n";
-		tabs += 1;
-		for (Iterator<Component> iterator = script.iterator(); iterator.hasNext(); ) {
-			Component next = iterator.next();
-			Command element = (Command) next;
-			result += element.getString(tabs);
-		}
-		tabs -= 1;
-		for (int i = 0; i < tabs; i++) {
-			result += "\t";
-		}
-		result += "}";
-		
-		return result;
 	}
 }
 
